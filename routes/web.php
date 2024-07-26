@@ -2,6 +2,15 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SalesController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\InventoryController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,6 +23,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/customer', [CustomerController::class, 'index'])->name('customer.index');
+    Route::get('/customer/create', [CustomerController::class, 'create'])->name('customer.create');
+
+    Route::get('/service', [ServiceController::class, 'index'])->name('service.index');
+    Route::get('/service/create', [ServiceController::class, 'create'])->name('service.create');
+
+    Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
+
+    Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
+
+    Route::get('/product', [ProductController::class, 'index'])->name('product.index');
+
+    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+
+    Route::get('/setting', [SettingsController::class, 'index'])->name('setting.index');
+
+    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

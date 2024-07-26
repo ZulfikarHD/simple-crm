@@ -1,16 +1,56 @@
-
 <!-- Static sidebar for desktop -->
 <div class="hidden md:flex md:flex-shrink-0">
 	<div class="flex w-64 flex-col">
 		<div class="flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white">
 			<div class="flex flex-1 flex-col overflow-y-auto pb-4 pt-5">
 				<nav class="mt-5 flex-1 space-y-1 bg-white px-2">
-					<!-- Add your sidenav items here -->
-					<a href="#"
-						class="group flex items-center rounded-md px-2 py-2 text-sm font-medium leading-6 text-gray-900 hover:bg-gray-50 hover:text-gray-900">
-						Dashboard
-					</a>
-					<!-- More items... -->
+					<!-- Sidenav Item -->
+					<ul class="space-y-2 px-2">
+                        {{-- Dashboard --}}
+						<x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+							{{ __('Dashboard') }}
+						</x-nav-link>
+
+                        {{-- Customer --}}
+						<x-nav-link href="{{ route('customer.index') }}" :active="request()->routeIs('customer.index')">
+							{{ __('Pelanggan') }}
+						</x-nav-link>
+
+                        {{-- Service --}}
+						<x-nav-link href="{{ route('service.index') }}" :active="request()->routeIs('service.index')">
+							{{ __('Service Data') }}
+						</x-nav-link>
+
+                        {{-- Sales --}}
+						<x-nav-link href="{{ route('sales.index') }}" :active="request()->routeIs('sales.index')">
+							{{ __('Penjualan') }}
+						</x-nav-link>
+
+                        {{-- Payment --}}
+						<x-nav-link href="{{ route('payment.index') }}" :active="request()->routeIs('payment.index')">
+							{{ __('Payment') }}
+						</x-nav-link>
+
+                        {{-- Inventory --}}
+						<x-nav-link href="{{ route('inventory.index') }}" :active="request()->routeIs('inventory.index')">
+							{{ __('Inventory') }}
+						</x-nav-link>
+
+                        {{-- Report --}}
+						<x-nav-link href="{{ route('report.index') }}" :active="request()->routeIs('report.index')">
+							{{ __('Laporan') }}
+						</x-nav-link>
+
+                        {{-- Teknisi --}}
+						{{-- <x-nav-link href="{{ route('teknisi.index') }}" :active="request()->routeIs('teknisi.index')">
+							Teknisi
+						</x-nav-link> --}}
+
+                        {{-- Settings --}}
+						<x-nav-link href="{{ route('setting.index') }}" :active="request()->routeIs('setting.index')">
+							{{ __('Settings') }}
+						</x-nav-link>
+					</ul>
 				</nav>
 			</div>
 		</div>
