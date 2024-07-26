@@ -10,4 +10,9 @@ class ReportController extends Controller
     {
         return view('report');
     }
+
+    public function generate($type)
+    {
+        //
+    }
 }

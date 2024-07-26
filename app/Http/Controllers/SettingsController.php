@@ -10,4 +10,17 @@ class SettingsController extends Controller
     {
         return view('setting');
     }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    public function manageUsers()
+    {
+
+    }
 }
