@@ -8,42 +8,42 @@
 					<ul class="space-y-2 px-2">
                         {{-- Dashboard --}}
 						<x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-							{{ __('Dashboard') }}
+							<i data-lucide="home" class="w-4 h-4 mr-2"></i>{{ __('Dashboard') }}
 						</x-nav-link>
 
                         {{-- Customer --}}
 						<x-nav-link href="{{ route('customer.index') }}" :active="request()->routeIs('customer.index')">
-							{{ __('Manajemen Pelanggan') }}
+							<i data-lucide="users" class="w-4 h-4 mr-2"></i>{{ __('Manajemen Pelanggan') }}
 						</x-nav-link>
 
                         {{-- Sales --}}
 						<x-nav-link href="{{ route('order.index') }}" :active="request()->routeIs('order.index')">
-							{{ __('Manajemen Pesanan') }}
+							<i data-lucide="clipboard" class="w-4 h-4 mr-2"></i>{{ __('Manajemen Pesanan') }}
 						</x-nav-link>
 
-                        {{-- Payment --}}
-						<x-nav-link href="{{ route('payment.index') }}" :active="request()->routeIs('payment.index')">
-							{{ __('Faktur dan Pembayaran') }}
+                        {{-- Invoices --}}
+						<x-nav-link href="{{ route('invoice.index') }}" :active="request()->routeIs('invoice.index')">
+							<i data-lucide="credit-card" class="w-4 h-4 mr-2"></i>{{ __('Faktur dan Pembayaran') }}
 						</x-nav-link>
 
                         {{-- Inventory --}}
 						<x-nav-link href="{{ route('inventory.index') }}" :active="request()->routeIs('inventory.index')">
-							{{ __('Inventaris') }}
+							<i data-lucide="box" class="w-4 h-4 mr-2"></i>{{ __('Inventaris') }}
 						</x-nav-link>
 
                         {{-- Report --}}
 						<x-nav-link href="{{ route('report.index') }}" :active="request()->routeIs('report.index')">
-							{{ __('Laporan') }}
+							<i data-lucide="file-text" class="w-4 h-4 mr-2"></i>{{ __('Laporan') }}
 						</x-nav-link>
 
                         {{-- Teknisi --}}
 						{{-- <x-nav-link href="{{ route('teknisi.index') }}" :active="request()->routeIs('teknisi.index')">
-							Teknisi
+							<i data-lucide="tool" class="w-4 h-4 mr-2"></i>Teknisi
 						</x-nav-link> --}}
 
                         {{-- Settings --}}
 						<x-nav-link href="{{ route('setting.index') }}" :active="request()->routeIs('setting.index')">
-							{{ __('Settings') }}
+							<i data-lucide="settings" class="w-4 h-4 mr-2"></i>{{ __('Settings') }}
 						</x-nav-link>
 					</ul>
 				</nav>

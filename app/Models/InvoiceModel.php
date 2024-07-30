@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class InvoiceModel extends Model
 {
     use HasFactory;
-    protected $table = "invoice";
+    protected $table = "invoices";
     protected $guarded = ['id','created_at','updated_at'];
 }
