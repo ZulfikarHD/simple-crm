@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('invoices', function (Blueprint $table) {
-            $table->id('invoice_id');
-            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            $table->date('issue_date');
-            $table->date('due_date');
-            $table->decimal('amount', 10, 2);
-            $table->string('status');
+        Schema::create('inventory', function (Blueprint $table) {
+            $table->id();
+            $table->string('item_name');
+            $table->integer('quantity');
+            $table->decimal('unit_price', 10, 2);
             $table->timestamps();
         });
     }

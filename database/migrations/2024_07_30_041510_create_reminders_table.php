@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reminders', function (Blueprint $table) {
-            $table->id('reminder_id');
+            $table->id();
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->date('reminder_date');
             $table->text('message');

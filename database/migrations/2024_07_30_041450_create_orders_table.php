@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id('order_id');
-            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $table->id();
+
+            $table->foreignId('customers_id')
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
+
             $table->date('service_date');
             $table->string('status');
             $table->decimal('total_amount', 10, 2);
