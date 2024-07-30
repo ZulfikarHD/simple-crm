@@ -13,27 +13,27 @@
 
                         {{-- Customer --}}
 						<x-nav-link href="{{ route('customer.index') }}" :active="request()->routeIs('customer.index')">
-							{{ __('Pelanggan') }}
+							{{ __('Manajemen Pelanggan') }}
 						</x-nav-link>
 
                         {{-- Service --}}
 						<x-nav-link href="{{ route('service.index') }}" :active="request()->routeIs('service.index')">
-							{{ __('Service Data') }}
+							{{ __('Manajemen Layanan') }}
 						</x-nav-link>
 
                         {{-- Sales --}}
 						<x-nav-link href="{{ route('sales.index') }}" :active="request()->routeIs('sales.index')">
-							{{ __('Penjualan') }}
+							{{ __('Manajemen Pesanan') }}
 						</x-nav-link>
 
                         {{-- Payment --}}
 						<x-nav-link href="{{ route('payment.index') }}" :active="request()->routeIs('payment.index')">
-							{{ __('Payment') }}
+							{{ __('Faktur dan Pembayaran') }}
 						</x-nav-link>
 
                         {{-- Inventory --}}
 						<x-nav-link href="{{ route('inventory.index') }}" :active="request()->routeIs('inventory.index')">
-							{{ __('Inventory') }}
+							{{ __('Inventaris') }}
 						</x-nav-link>
 
                         {{-- Report --}}

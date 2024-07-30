@@ -4,18 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class CustomerController extends Controller
+class InvoiceController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        $customers = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'phone' => '081234567890',
-            'address' => 'Jl. Imam Bonjol',
-        ];
-
-        return view('customer', compact('customers'));
+        //
     }
 
     /**
