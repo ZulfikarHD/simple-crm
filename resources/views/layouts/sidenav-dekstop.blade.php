@@ -16,11 +16,6 @@
 							{{ __('Manajemen Pelanggan') }}
 						</x-nav-link>
 
-                        {{-- Service --}}
-						<x-nav-link href="{{ route('service.index') }}" :active="request()->routeIs('service.index')">
-							{{ __('Manajemen Layanan') }}
-						</x-nav-link>
-
                         {{-- Sales --}}
 						<x-nav-link href="{{ route('sales.index') }}" :active="request()->routeIs('sales.index')">
 							{{ __('Manajemen Pesanan') }}

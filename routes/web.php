@@ -10,6 +10,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\OrderController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer.index');
     Route::get('/customer/create', [CustomerController::class, 'create'])->name('customer.create');
+    Route::post('/customer/store', [CustomerController::class, 'store'])->name('customer.store');
+    Route::get('/customer/edit/{id}', [CustomerController::class, 'edit'])->name('customer.edit');
+    Route::put('/customer/update/{id}', [CustomerController::class, 'update'])->name('customer.update');
+    Route::delete('/customer/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
 
     Route::get('/service', [ServiceController::class, 'index'])->name('service.index');
     Route::get('/service/create', [ServiceController::class, 'create'])->name('service.create');
@@ -41,6 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/setting', [SettingsController::class, 'index'])->name('setting.index');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+
+    Route::get('/order', [OrderController::class, 'index'])->name('order.index');
 
 });
 

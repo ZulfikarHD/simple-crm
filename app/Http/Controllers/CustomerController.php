@@ -3,17 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\CustomerModel;
 
 class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'phone' => '081234567890',
-            'address' => 'Jl. Imam Bonjol',
-        ];
+        $customers = CustomerModel::all();
 
         return view('customer', compact('customers'));
     }
@@ -31,15 +27,15 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        $customer = CustomerModel::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->phone,
+            'address' => $request->address,
+        ]);
+
+        return redirect()->route('customer.index')->with('success', 'Customer created successfully');
     }
 
     /**
