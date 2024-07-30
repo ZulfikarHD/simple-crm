@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\OrderModel;
 
 class OrderController extends Controller
 {
@@ -11,7 +12,9 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // return view('order.index');
+        $orders = OrderModel::all();
+
+        return view('order-management', compact('orders'));
     }
 
     /**
@@ -27,7 +30,13 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        OrderModel::create([
+            'service_date' => date('Y-m-d'),
+            'customer_id' => $request->customer_id,
+            'status'    => "Pending",
+            'total_amount' => $request->total_amount,
+        ]);
+        return redirect()->route('order.index')->with('success', 'Pesanan berhasil dibuat');
     }
 
     /**

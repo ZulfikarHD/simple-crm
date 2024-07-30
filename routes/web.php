@@ -48,6 +48,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
     Route::get('/order', [OrderController::class, 'index'])->name('order.index');
+    Route::delete('/order/{id}', [OrderController::class, 'destroy'])->name('order.delete');
+    Route::get('/order/create', [OrderController::class, 'create'])->name('order.create');
+    Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
+    Route::get('/order/edit/{id}', [OrderController::class, 'edit'])->name('order.edit');
+    Route::put('/order/update/{id}', [OrderController::class, 'update'])->name('order.update');
 
 });
 
