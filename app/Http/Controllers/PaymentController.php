@@ -2,60 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payment;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
+
     public function index()
     {
-        return view('payment');
+        $payments = Payment::with('invoice.order.customer')->get();
+        return view('payments.index', compact('payments'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $invoices = Invoice::all();
+        return view('payments.create', compact('invoices'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'invoice_id' => 'required|exists:invoices,id',
+            'payment_date' => 'required|date',
+            'amount' => 'required|numeric',
+            'payment_method' => 'required|string|max:255',
+        ]);
+
+        Payment::create($request->all());
+
+        return redirect()->route('payments.index')->with('success', 'Payment created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $payment = Payment::with('invoice.order.customer')->findOrFail($id);
+        return view('payments.show', compact('payment'));
     }
 }

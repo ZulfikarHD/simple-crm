@@ -31,8 +31,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
 
-    Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
-
     Route::get('/product', [ProductController::class, 'index'])->name('product.index');
 
     Route::get('/report', [ReportController::class, 'index'])->name('report.index');
@@ -42,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
     Route::resource('orders', OrderController::class);
+    Route::resource('invoices', InvoiceController::class);
+    Route::resource('payments', PaymentController::class);
     Route::resource('invoices', InvoiceController::class);
     Route::resource('customers', CustomerController::class);
 

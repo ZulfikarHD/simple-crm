@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\InvoiceModel;
+use App\Models\Invoice;
 use App\Models\Order;
 
 class InvoiceController extends Controller
 {
-
     public function index()
     {
-        $invoices = InvoiceModel::with('order')->get();
+        $invoices = Invoice::with('order.customer')->get();
         return view('invoices.index', compact('invoices'));
     }
 
@@ -28,43 +27,46 @@ class InvoiceController extends Controller
             'issue_date' => 'required|date',
             'due_date' => 'required|date',
             'amount' => 'required|numeric',
+            'status' => 'required|string|max:255',
         ]);
 
-        InvoiceModel::updateOrCreate(
-            ['invoice_number' => "SRV/" . date('Ymd') . "/" . InvoiceModel::with('order')->count() + 1],
-            [
-                'order_id' => $request->order_id,
-                'issue_date' => $request->issue_date,
-                'due_date' => $request->due_date,
-                'amount' => $request->amount,
-            ]
-        );
+        Invoice::create($request->all());
 
         return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
     }
 
-    public function edit(InvoiceModel $invoice)
+    public function show($id)
     {
+        $invoice = Invoice::with('order.customer', 'payments')->findOrFail($id);
+        return view('invoices.show', compact('invoice'));
+    }
+
+    public function edit($id)
+    {
+        $invoice = Invoice::findOrFail($id);
         $orders = Order::all();
         return view('invoices.edit', compact('invoice', 'orders'));
     }
 
-    public function update(Request $request, InvoiceModel $invoice)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'issue_date' => 'required|date',
             'due_date' => 'required|date',
             'amount' => 'required|numeric',
+            'status' => 'required|string|max:255',
         ]);
 
+        $invoice = Invoice::findOrFail($id);
         $invoice->update($request->all());
 
         return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
     }
 
-    public function destroy(InvoiceModel $invoice)
+    public function destroy($id)
     {
+        $invoice = Invoice::findOrFail($id);
         $invoice->delete();
 
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
