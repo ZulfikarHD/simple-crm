@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('payments', PaymentController::class);
     Route::resource('invoices', InvoiceController::class);
     Route::resource('customers', CustomerController::class);
+    Route::resource('inventory', InventoryController::class);
 
 });
 
