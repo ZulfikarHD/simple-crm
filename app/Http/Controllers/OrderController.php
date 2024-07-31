@@ -3,20 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\OrderModel;
-use App\Models\CustomerModel;
+use App\Models\Order;
+use App\Models\Customer;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        $orders = OrderModel::with('customer')->get();
+        $orders = Order::with('customer')->get();
         return view('order-management.index', compact('orders'));
     }
 
     public function create()
     {
-        $customers = CustomerModel::all();
+        $customers = Customer::all();
         return view('order-management.create', compact('customers'));
     }
 
@@ -29,18 +29,18 @@ class OrderController extends Controller
             'total_amount' => 'required|numeric',
         ]);
 
-        OrderModel::create($request->all());
+        Order::create($request->all());
 
         return redirect()->route('order.index')->with('success', 'Pesanan berhasil dibuat.');
     }
 
-    public function edit(OrderModel $order)
+    public function edit(Order $order)
     {
-        $customers = CustomerModel::all();
+        $customers = Customer::all();
         return view('order-management.edit', compact('order', 'customers'));
     }
 
-    public function update(Request $request, OrderModel $order)
+    public function update(Request $request, Order $order)
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
@@ -54,7 +54,7 @@ class OrderController extends Controller
         return redirect()->route('order.index')->with('success', 'Pesanan berhasil diperbarui.');
     }
 
-    public function destroy(OrderModel $order)
+    public function destroy(Order $order)
     {
         $order->delete();
 

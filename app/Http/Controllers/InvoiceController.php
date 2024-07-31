@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\InvoiceModel;
-use App\Models\OrderModel;
+use App\Models\Order;
 
 class InvoiceController extends Controller
 {
@@ -17,7 +17,7 @@ class InvoiceController extends Controller
 
     public function create()
     {
-        $orders = OrderModel::all();
+        $orders = Order::all();
         return view('invoices.create', compact('orders'));
     }
 
@@ -45,7 +45,7 @@ class InvoiceController extends Controller
 
     public function edit(InvoiceModel $invoice)
     {
-        $orders = OrderModel::all();
+        $orders = Order::all();
         return view('invoices.edit', compact('invoice', 'orders'));
     }
 

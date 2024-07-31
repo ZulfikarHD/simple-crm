@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\CustomerModel;
+use App\Models\Customer;
 
 class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = CustomerModel::all();
+        $customers = Customer::all();
         return view('customers.index', compact('customers'));
     }
 
@@ -27,17 +27,17 @@ class CustomerController extends Controller
             'email' => 'required|string|email|max:255|unique:customers',
         ]);
 
-        CustomerModel::create($request->all());
+        Customer::create($request->all());
 
         return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil dibuat.');
     }
 
-    public function edit(CustomerModel $customer)
+    public function edit(Customer $customer)
     {
         return view('customers.edit', compact('customer'));
     }
 
-    public function update(Request $request, CustomerModel $customer)
+    public function update(Request $request, Customer $customer)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -51,7 +51,7 @@ class CustomerController extends Controller
         return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil diperbarui.');
     }
 
-    public function destroy(CustomerModel $customer)
+    public function destroy(Customer $customer)
     {
         $customer->delete();
 
