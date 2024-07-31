@@ -17,7 +17,7 @@
 						</x-nav-link>
 
                         {{-- Sales --}}
-						<x-nav-link href="{{ route('order.index') }}" :active="request()->routeIs('order.index')">
+						<x-nav-link href="{{ route('orders.index') }}" :active="request()->routeIs('orders.index')">
 							<i data-lucide="clipboard" class="w-4 h-4 mr-2"></i>{{ __('Manajemen Pesanan') }}
 						</x-nav-link>
 

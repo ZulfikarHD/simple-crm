@@ -1,50 +1,41 @@
 <x-app-layout>
-    <div class="container mx-auto p-4">
-        <h2 class="text-2xl font-bold mb-4">Daftar Pesanan</h2>
-        <a href="{{ route('order.create') }}" class="bg-blue-500 text-white py-2 px-4 rounded">Buat Pesanan Baru</a>
-        <div class="mt-4">
-            @if ($message = Session::get('success'))
-                <div class="bg-green-500 text-white p-2 rounded mb-4">
-                    {{ $message }}
-                </div>
-            @endif
-            <table class="min-w-full bg-white">
-                <thead>
-                    <tr>
-                        <th class="py-2">Nomor Pesanan</th>
-                        <th class="py-2">Nama Pelanggan</th>
-                        <th class="py-2">Tanggal Service</th>
-                        <th class="py-2">Status</th>
-                        <th class="py-2">Jumlah Pembayaran</th>
-                        <th class="py-2">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($orders as $order)
-                        <tr>
-                            <td class="py-2 px-4 text-center">{{ $order->id }}</td>
-                            <td class="py-2 px-4 text-center">{{ $order->customer->name }}</td>
-                            <td class="py-2 px-4 text-center">{{ $order->service_date }}</td>
-                            <td class="py-2 px-4 text-center">{{ $order->status }}</td>
-                            <td class="py-2 px-4 text-center">{{ $order->total_amount }}</td>
-                            <td class="py-2 px-4 text-center">
-                                <div class="flex gap-2 justify-center">
-                                    <a href="{{ route('order.edit', $order->id) }}" class="bg-yellow-500 text-white px-2 py-1.5 rounded">
-                                        <i data-lucide="edit" class="w-4 h-4"></i>
-                                    </a>
-                                    <form action="{{ route('order.destroy', $order->id) }}" method="POST" >
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="bg-red-500 text-white  px-2 py-1.5  rounded">
-                                            <i data-lucide="trash" class="w-4 h-4"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
+	<div>
+		<h1 class="mb-6 text-3xl font-bold">Daftar Pesanan</h1>
+		<a href="{{ route('orders.create') }}"
+			class="focus:shadow-outline mb-6 inline-block rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-700 focus:outline-none">Tambah
+			Pesanan</a>
+		@if (session('success'))
+			<div class="mb-4 rounded bg-green-500 px-4 py-2 text-white">
+				{{ session('success') }}
+			</div>
+		@endif
+		<table class="min-w-full bg-white">
+			<thead>
+				<tr>
+					<th class="py-2">Nama Pelanggan</th>
+					<th class="py-2">Tanggal Layanan</th>
+					<th class="py-2">Status</th>
+					<th class="py-2">Aksi</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach ($orders as $order)
+					<tr>
+						<td class="py-2">{{ $order->customer->name }}</td>
+						<td class="py-2">{{ $order->service_date }}</td>
+						<td class="py-2">{{ $order->status }}</td>
+						<td class="py-2">
+							<a href="{{ route('orders.show', $order->id) }}" class="text-blue-500">Detail</a>
+							<a href="{{ route('orders.edit', $order->id) }}" class="text-yellow-500">Edit</a>
+							<form action="{{ route('orders.destroy', $order->id) }}" method="POST" class="inline-block">
+								@csrf
+								@method('DELETE')
+								<button type="submit" class="text-red-500">Hapus</button>
+							</form>
+						</td>
+					</tr>
+				@endforeach
+			</tbody>
+		</table>
+	</div>
 </x-app-layout>

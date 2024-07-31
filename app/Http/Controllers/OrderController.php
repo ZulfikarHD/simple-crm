@@ -7,8 +7,7 @@ use App\Models\Order;
 use App\Models\Customer;
 
 class OrderController extends Controller
-{
-    public function index()
+{public function index()
     {
         $orders = Order::with('customer')->get();
         return view('order-management.index', compact('orders'));
@@ -25,39 +24,48 @@ class OrderController extends Controller
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'service_date' => 'required|date',
-            'status' => 'required|string',
-            'total_amount' => 'required|numeric',
+            'status' => 'required|string|max:255',
+            'notes' => 'nullable|string',
         ]);
 
         Order::create($request->all());
 
-        return redirect()->route('order.index')->with('success', 'Pesanan berhasil dibuat.');
+        return redirect()->route('orders.index')->with('success', 'Order created successfully.');
     }
 
-    public function edit(Order $order)
+    public function show($id)
     {
+        $order = Order::with('customer')->findOrFail($id);
+        return view('order-management.show', compact('order'));
+    }
+
+    public function edit($id)
+    {
+        $order = Order::findOrFail($id);
         $customers = Customer::all();
         return view('order-management.edit', compact('order', 'customers'));
     }
 
-    public function update(Request $request, Order $order)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'service_date' => 'required|date',
-            'status' => 'required|string',
-            'total_amount' => 'required|numeric',
+            'status' => 'required|string|max:255',
+            'notes' => 'nullable|string',
         ]);
 
+        $order = Order::findOrFail($id);
         $order->update($request->all());
 
-        return redirect()->route('order.index')->with('success', 'Pesanan berhasil diperbarui.');
+        return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
     }
 
-    public function destroy(Order $order)
+    public function destroy($id)
     {
+        $order = Order::findOrFail($id);
         $order->delete();
 
-        return redirect()->route('order.index')->with('success', 'Pesanan berhasil dihapus.');
+        return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
     }
 }

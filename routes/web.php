@@ -41,7 +41,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
-    Route::resource('order', OrderController::class);
+    Route::resource('orders', OrderController::class);
     Route::resource('invoices', InvoiceController::class);
     Route::resource('customers', CustomerController::class);
 
