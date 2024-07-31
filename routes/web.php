@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
     Route::resource('order', OrderController::class);
-    Route::resource('invoice', InvoiceController::class);
+    Route::resource('invoices', InvoiceController::class);
     Route::resource('customer', CustomerController::class);
 
 });

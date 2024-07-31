@@ -22,7 +22,7 @@
 						</x-nav-link>
 
                         {{-- Invoices --}}
-						<x-nav-link href="{{ route('invoice.index') }}" :active="request()->routeIs('invoice.index')">
+						<x-nav-link href="{{ route('invoices.index') }}" :active="request()->routeIs('invoices.index')">
 							<i data-lucide="credit-card" class="w-4 h-4 mr-2"></i>{{ __('Faktur dan Pembayaran') }}
 						</x-nav-link>
 

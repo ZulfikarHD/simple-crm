@@ -4,43 +4,57 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\InvoiceModel;
+use App\Models\OrderModel;
 
 class InvoiceController extends Controller
 {
+
     public function index()
     {
-        $invoices = InvoiceModel::all();
+        $invoices = InvoiceModel::with('order')->get();
         return view('invoices.index', compact('invoices'));
     }
 
     public function create()
     {
-        return view('invoices.create');
+        $orders = OrderModel::all();
+        return view('invoices.create', compact('orders'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'invoice_number' => 'required',
-            'customer_name' => 'required',
+            'order_id' => 'required|exists:orders,id',
+            'issue_date' => 'required|date',
+            'due_date' => 'required|date',
             'amount' => 'required|numeric',
         ]);
 
-        InvoiceModel::create($request->all());
+        InvoiceModel::updateOrCreate(
+            ['invoice_number' => "SRV/" . date('Ymd') . "/" . InvoiceModel::with('order')->count() + 1],
+            [
+                'order_id' => $request->order_id,
+                'issue_date' => $request->issue_date,
+                'due_date' => $request->due_date,
+                'amount' => $request->amount,
+            ]
+        );
 
-        return redirect()->route('invoice.index')->with('success', 'Invoice created successfully.');
+        return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
     }
 
-    public function edit(Invoice $invoice)
+    public function edit(InvoiceModel $invoice)
     {
-        return view('invoices.edit', compact('invoice'));
+        $orders = OrderModel::all();
+        return view('invoices.edit', compact('invoice', 'orders'));
     }
 
-    public function update(Request $request, Invoice $invoice)
+    public function update(Request $request, InvoiceModel $invoice)
     {
         $request->validate([
-            'invoice_number' => 'required',
-            'customer_name' => 'required',
+            'order_id' => 'required|exists:orders,id',
+            'issue_date' => 'required|date',
+            'due_date' => 'required|date',
             'amount' => 'required|numeric',
         ]);
 
@@ -49,7 +63,7 @@ class InvoiceController extends Controller
         return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
     }
 
-    public function destroy(Invoice $invoice)
+    public function destroy(InvoiceModel $invoice)
     {
         $invoice->delete();
 

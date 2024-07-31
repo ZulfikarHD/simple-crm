@@ -4,70 +4,60 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\OrderModel;
+use App\Models\CustomerModel;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $orders = OrderModel::all();
-
-        return view('order-management', compact('orders'));
+        $orders = OrderModel::with('customer')->get();
+        return view('order-management.index', compact('orders'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $customers = CustomerModel::all();
+        return view('order-management.create', compact('customers'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        OrderModel::create([
-            'service_date' => date('Y-m-d'),
-            'customer_id' => $request->customer_id,
-            'status'    => "Pending",
-            'total_amount' => $request->total_amount,
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'service_date' => 'required|date',
+            'status' => 'required|string',
+            'total_amount' => 'required|numeric',
         ]);
-        return redirect()->route('order.index')->with('success', 'Pesanan berhasil dibuat');
+
+        OrderModel::create($request->all());
+
+        return redirect()->route('order.index')->with('success', 'Pesanan berhasil dibuat.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(OrderModel $order)
     {
-        //
+        $customers = CustomerModel::all();
+        return view('order-management.edit', compact('order', 'customers'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, OrderModel $order)
     {
-        //
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'service_date' => 'required|date',
+            'status' => 'required|string',
+            'total_amount' => 'required|numeric',
+        ]);
+
+        $order->update($request->all());
+
+        return redirect()->route('order.index')->with('success', 'Pesanan berhasil diperbarui.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(OrderModel $order)
     {
-        //
-    }
+        $order->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('order.index')->with('success', 'Pesanan berhasil dihapus.');
     }
 }

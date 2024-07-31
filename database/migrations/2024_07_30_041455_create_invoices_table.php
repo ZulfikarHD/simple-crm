@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->string('invoice_number')->unique();
             $table->date('issue_date');
             $table->date('due_date');
             $table->decimal('amount', 10, 2);
-            $table->string('status');
+            $table->string('status')->default('Pending');
             $table->timestamps();
         });
     }
