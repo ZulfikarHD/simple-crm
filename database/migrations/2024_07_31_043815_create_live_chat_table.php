@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory', function (Blueprint $table) {
+        Schema::create('live_chat', function (Blueprint $table) {
             $table->id();
-            $table->string('item_name');
-            $table->integer('quantity');
-            $table->decimal('unit_price', 10, 2);
-            $table->integer('threshold_level')->default(0);
-            $table->integer('reorder_quantity')->default(0);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->text('message');
+            $table->dateTime('sent_at');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventory');
+        Schema::dropIfExists('live_chat');
     }
 };

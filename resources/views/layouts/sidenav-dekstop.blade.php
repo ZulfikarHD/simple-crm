@@ -12,7 +12,7 @@
 						</x-nav-link>
 
                         {{-- Customer --}}
-						<x-nav-link href="{{ route('customer.index') }}" :active="request()->routeIs('customer.index')">
+						<x-nav-link href="{{ route('customers.index') }}" :active="request()->routeIs('customer.index')">
 							<i data-lucide="users" class="w-4 h-4 mr-2"></i>{{ __('Manajemen Pelanggan') }}
 						</x-nav-link>
 

@@ -43,7 +43,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('order', OrderController::class);
     Route::resource('invoices', InvoiceController::class);
-    Route::resource('customer', CustomerController::class);
+    Route::resource('customers', CustomerController::class);
 
 });
 

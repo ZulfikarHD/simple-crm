@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory', function (Blueprint $table) {
+        Schema::create('service_items', function (Blueprint $table) {
             $table->id();
-            $table->string('item_name');
+            $table->foreignId('service_id')->constrained('service_history')->onDelete('cascade');
+            $table->foreignId('inventory_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('description'); // Deskripsi jasa atau barang
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);
-            $table->integer('threshold_level')->default(0);
-            $table->integer('reorder_quantity')->default(0);
+            $table->decimal('total_price', 10, 2);
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventory');
+        Schema::dropIfExists('service_item');
     }
 };

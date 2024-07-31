@@ -14,6 +14,9 @@ return new class extends Migration
             $table->string('address');
             $table->string('phone_number');
             $table->string('email')->unique();
+            $table->string('social_media_profile')->nullable();
+            $table->text('feedback')->nullable();
+            $table->integer('loyalty_points')->default(0);
             $table->timestamps();
         });
     }
