@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('service_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')->constrained('service_history')->onDelete('cascade');
-            $table->foreignId('inventory_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('service_id')->references('id')->on('service_history')->constrained()->onDelete('cascade');
+            $table->foreignId('inventory_id')->nullable()->references('id')->on('inventory')->constrained()->onDelete('set null');
             $table->string('description'); // Deskripsi jasa atau barang
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);

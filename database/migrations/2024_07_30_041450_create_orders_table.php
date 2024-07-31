@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->foreignId('customer_id')->references('id')->on('customers')->constrained()->onDelete('cascade');
             $table->date('service_date');
             $table->string('status');
-            $table->foreignId('reminder_id')->nullable()->constrained()->onDelete('set null');
             $table->text('notes')->nullable();
             $table->timestamps();
         });
