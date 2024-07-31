@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/product', [ProductController::class, 'index'])->name('product.index');
 
-    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+    // Route::get('/report', [ReportController::class, 'index'])->name('report.index');
 
     Route::get('/setting', [SettingsController::class, 'index'])->name('setting.index');
 
@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('invoices', InvoiceController::class);
     Route::resource('customers', CustomerController::class);
     Route::resource('inventory', InventoryController::class);
+    Route::resource('reports', ReportController::class);
 
 });
 
