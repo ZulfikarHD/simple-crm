@@ -4,12 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $customers = Customer::all();
+        // Pencarian
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        // Pengambilan data dengan paginasi, pencarian, dan penyaringan
+        $customers = Customer::when($search, function ($query, $search) {
+                return $query->where('name', 'like', "%{$search}%")
+                             ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->when($status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->paginate(10);
+
         return view('customers.index', compact('customers'));
     }
 
@@ -68,8 +82,32 @@ class CustomerController extends Controller
     public function destroy($id)
     {
         $customer = Customer::findOrFail($id);
+
+        // Validasi sebelum menghapus (misalnya, cek jika ada order terkait)
+        $hasOrders = DB::table('orders')->where('customer_id', $id)->exists();
+
+        if ($hasOrders) {
+            return redirect()->route('customers.index')->with('error', 'Cannot delete customer with existing orders.');
+        }
+
         $customer->delete();
 
         return redirect()->route('customers.index')->with('success', 'Customer deleted successfully.');
+    }
+
+    public function exportCSV()
+    {
+        $customers = Customer::all();
+        $filename = "customers_" . date('Ymd') . ".csv";
+        $handle = fopen($filename, 'w+');
+        fputcsv($handle, ['ID', 'Name', 'Address', 'Phone Number', 'Email', 'Loyalty Points', 'Social Media Profile']);
+
+        foreach ($customers as $customer) {
+            fputcsv($handle, [$customer->id, $customer->name, $customer->address, $customer->phone_number, $customer->email, $customer->loyalty_points, $customer->social_media_profile]);
+        }
+
+        fclose($handle);
+
+        return response()->download($filename)->deleteFileAfterSend(true);
     }
 }
