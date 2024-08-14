@@ -27,12 +27,18 @@
 						<td class="py-2">{{ $customer->phone_number }}</td>
 						<td class="py-2">{{ $customer->email }}</td>
 						<td class="py-2">
-							<a href="{{ route('customers.show', $customer->id) }}" class="text-blue-500">Detail</a>
-							<a href="{{ route('customers.edit', $customer->id) }}" class="text-yellow-500">Edit</a>
+							<a href="{{ route('customers.show', $customer->id) }}" class="text-blue-500" title="Detail">
+								<i data-lucide="eye" class="w-4 h-4"></i>
+							</a>
+							<a href="{{ route('customers.edit', $customer->id) }}" class="text-yellow-500" title="Edit">
+								<i data-lucide="edit" class="w-4 h-4"></i>
+							</a>
 							<form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="inline-block">
 								@csrf
 								@method('DELETE')
-								<button type="submit" class="text-red-500">Hapus</button>
+								<button type="submit" class="text-red-500" title="Hapus">
+									<i data-lucide="trash" class="w-4 h-4"></i>
+								</button>
 							</form>
 						</td>
 					</tr>

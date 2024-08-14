@@ -23,12 +23,18 @@
                     <td class="py-2">{{ $inventory->quantity }}</td>
                     <td class="py-2">{{ $inventory->unit_price }}</td>
                     <td class="py-2">
-                        <a href="{{ route('inventory.show', $inventory->id) }}" class="text-blue-500">Detail</a>
-                        <a href="{{ route('inventory.edit', $inventory->id) }}" class="text-yellow-500">Edit</a>
+                        <a href="{{ route('inventory.show', $inventory->id) }}" class="text-blue-500" title="Detail">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </a>
+                        <a href="{{ route('inventory.edit', $inventory->id) }}" class="text-yellow-500" title="Edit">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                        </a>
                         <form action="{{ route('inventory.destroy', $inventory->id) }}" method="POST" class="inline-block">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500">Hapus</button>
+                            <button type="submit" class="text-red-500" title="Hapus">
+                                <i data-lucide="trash" class="w-4 h-4"></i>
+                            </button>
                         </form>
                     </td>
                 </tr>

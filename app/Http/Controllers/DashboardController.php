@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -15,7 +14,12 @@ class DashboardController extends Controller
         // Ambil data statistik utama
         $totalSales = Invoice::sum('amount');
         $activeOrders = Order::where('status', 'active')->count();
+        $pendingOrders = Order::where('status', 'pending')->count();
+        $completedOrders = Order::where('status', 'completed')->count();
+        $totalCustomers = Customer::count();
         $customerSatisfaction = $this->calculateCustomerSatisfaction();
+        $totalRevenue = 10000000;
+        $customers = Customer::all();
 
         // Ambil aktivitas terbaru
         $recentActivities = $this->getRecentActivities();
@@ -23,7 +27,18 @@ class DashboardController extends Controller
         // Ambil notifikasi penting
         $importantNotifications = $this->getImportantNotifications();
 
-        return view('dashboard', compact('totalSales', 'activeOrders', 'customerSatisfaction', 'recentActivities', 'importantNotifications'));
+        return view('dashboard', compact(
+            'customers',
+            'totalSales',
+            'activeOrders',
+            'pendingOrders',
+            'completedOrders',
+            'totalCustomers',
+            'customerSatisfaction',
+            'recentActivities',
+            'importantNotifications',
+            'totalRevenue'
+        ));
     }
 
     private function calculateCustomerSatisfaction()
@@ -35,7 +50,10 @@ class DashboardController extends Controller
     private function getRecentActivities()
     {
         // Logika untuk mendapatkan aktivitas terbaru (placeholder)
-        return Order::orderBy('created_at', 'desc')->take(5)->get();
+        return Order::with('customer') // Eager load customer data
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
     }
 
     private function getImportantNotifications()
@@ -44,3 +62,4 @@ class DashboardController extends Controller
         return Reminder::orderBy('reminder_date', 'asc')->take(5)->get();
     }
 }
+

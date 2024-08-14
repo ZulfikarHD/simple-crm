@@ -27,7 +27,9 @@
 										<td class="py-2">{{ $payment->amount }}</td>
 										<td class="py-2">{{ $payment->payment_method }}</td>
 										<td class="py-2">
-											<a href="{{ route('payments.show', $payment->id) }}" class="text-blue-500">Detail</a>
+											<a href="{{ route('payments.show', $payment->id) }}" class="text-blue-500" title="Detail">
+												<i data-lucide="eye" class="w-4 h-4"></i>
+											</a>
 										</td>
 									</tr>
 								@endforeach

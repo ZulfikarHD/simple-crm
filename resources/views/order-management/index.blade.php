@@ -25,8 +25,12 @@
 						<td class="py-2">{{ $order->service_date }}</td>
 						<td class="py-2">{{ $order->status }}</td>
 						<td class="py-2">
-							<a href="{{ route('orders.show', $order->id) }}" class="text-blue-500">Detail</a>
-							<a href="{{ route('orders.edit', $order->id) }}" class="text-yellow-500">Edit</a>
+							<a href="{{ route('orders.show', $order->id) }}" class="text-blue-500" title="Detail">
+								<i data-lucide="eye" class="w-4 h-4"></i>
+							</a>
+							<a href="{{ route('orders.edit', $order->id) }}" class="text-yellow-500" title="Edit">
+								<i data-lucide="edit" class="w-4 h-4"></i>
+							</a>
 							<form action="{{ route('orders.destroy', $order->id) }}" method="POST" class="inline-block">
 								@csrf
 								@method('DELETE')

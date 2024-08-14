@@ -32,7 +32,7 @@
 						</x-nav-link>
 
                         {{-- Report --}}
-						<x-nav-link href="{{ route('report.index') }}" :active="request()->routeIs('report.index')">
+						<x-nav-link href="{{ route('reports.index') }}" :active="request()->routeIs('report.index')">
 							<i data-lucide="file-text" class="w-4 h-4 mr-2"></i>{{ __('Laporan') }}
 						</x-nav-link>
 
