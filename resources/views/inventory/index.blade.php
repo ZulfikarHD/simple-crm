@@ -1,45 +1,122 @@
 <x-app-layout>
-    <div>
-        <h1 class="text-3xl font-bold mb-6">Daftar Inventaris</h1>
-        <a href="{{ route('inventory.create') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-6 inline-block">Tambah Item</a>
-        @if(session('success'))
-            <div class="bg-green-500 text-white py-2 px-4 rounded mb-4">
-                {{ session('success') }}
-            </div>
-        @endif
-        <table class="min-w-full bg-white">
-            <thead>
-                <tr>
-                    <th class="py-2">Nama Item</th>
-                    <th class="py-2">Jumlah</th>
-                    <th class="py-2">Harga Satuan</th>
-                    <th class="py-2">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($inventories as $inventory)
-                <tr>
-                    <td class="py-2">{{ $inventory->item_name }}</td>
-                    <td class="py-2">{{ $inventory->quantity }}</td>
-                    <td class="py-2">{{ $inventory->unit_price }}</td>
-                    <td class="py-2">
-                        <a href="{{ route('inventory.show', $inventory->id) }}" class="text-blue-500" title="Detail">
-                            <i data-lucide="eye" class="w-4 h-4"></i>
-                        </a>
-                        <a href="{{ route('inventory.edit', $inventory->id) }}" class="text-yellow-500" title="Edit">
-                            <i data-lucide="edit" class="w-4 h-4"></i>
-                        </a>
-                        <form action="{{ route('inventory.destroy', $inventory->id) }}" method="POST" class="inline-block">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-500" title="Hapus">
-                                <i data-lucide="trash" class="w-4 h-4"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+	<div class="container mx-auto p-6">
+		<h1 class="mb-6 text-3xl font-bold">Daftar Inventaris</h1>
+
+		<!-- Tombol Tambah Item -->
+		<a href="{{ route('inventory.create') }}"
+			class="focus:shadow-outline mb-6 inline-block rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-700 focus:outline-none">Tambah
+			Item</a>
+
+		<!-- Pesan Sukses -->
+		@if (session('success'))
+			<div class="mb-4 rounded bg-green-500 px-4 py-2 text-white">
+				{{ session('success') }}
+			</div>
+		@endif
+
+		<!-- Filter dan Sorting -->
+		<div class="mb-6 flex items-center justify-between">
+			<form class="flex items-center space-x-2">
+				<input type="text" name="search" placeholder="Cari nama item..."
+					class="rounded-lg border px-4 py-2 focus:ring-2 focus:ring-green-500">
+
+				<select name="sort_by" class="rounded-lg border px-4 py-2 focus:ring-2 focus:ring-green-500">
+					<option value="item_name">Nama Item</option>
+					<option value="quantity">Jumlah</option>
+					<option value="unit_price">Harga Satuan</option>
+				</select>
+
+				<select name="sort_direction" class="rounded-lg border px-4 py-2 focus:ring-2 focus:ring-green-500">
+					<option value="asc">Naik</option>
+					<option value="desc">Turun</option>
+				</select>
+
+				<button type="submit" class="rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-700">Terapkan</button>
+			</form>
+		</div>
+
+		<!-- Tabel Inventaris -->
+		<div class="overflow-x-auto rounded-lg bg-white shadow">
+			<table class="min-w-full">
+				<thead class="bg-green-500 text-white">
+					<tr>
+						<th class="px-4 py-3 text-left">Nama Item</th>
+						<th class="px-4 py-3 text-left">Stock</th>
+						<th class="px-4 py-3 text-left">Harga Satuan</th>
+						<th class="px-4 py-3 text-center">Aksi</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-200">
+					@foreach ($inventories as $inventory)
+						<tr class="hover:bg-gray-100">
+							<td class="px-4 py-3">{{ $inventory->item_name }}</td>
+							<td class="px-4 py-3">{{ number_format($inventory->quantity) }}</td>
+							<td class="px-4 py-3">Rp {{ number_format($inventory->unit_price, 0, ',', '.') }}</td>
+							<td class="px-4 py-3 text-center">
+								<div x-data="{ open: false }" class="inline-block text-left">
+									<button @click="open = !open"
+										class="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+										Aksi
+										<svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+											stroke="currentColor" aria-hidden="true">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+										</svg>
+									</button>
+
+									<div x-show="open" @click.away="open = false" x-transition
+										class="absolute z-10 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+										role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+										<div class="py-1" role="none">
+											<a href="{{ route('inventory.show', $inventory->id) }}"
+												class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Lihat Detail</a>
+											<a href="{{ route('inventory.edit', $inventory->id) }}"
+												class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit</a>
+											<button @click.prevent="confirmDelete({{ $inventory->id }})"
+												class="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100">Hapus</button>
+										</div>
+									</div>
+								</div>
+							</td>
+						</tr>
+					@endforeach
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Paginasi -->
+		<div class="mt-6">
+			{{ $inventories->links() }}
+		</div>
+	</div>
+
+	<!-- SweetAlert2 -->
+	@push('sweet-alert')
+		<script>
+			function confirmDelete(inventoryId) {
+				Swal.fire({
+					title: 'Apakah Anda yakin?',
+					text: "Anda tidak akan dapat memulihkan item ini!",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#d33',
+					cancelButtonColor: '#3085d6',
+					confirmButtonText: 'Ya, hapus!',
+					cancelButtonText: 'Batal'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						// Submit the form to delete the inventory item
+						let form = document.createElement('form');
+						form.action = `/inventory/${inventoryId}`;
+						form.method = 'POST';
+						form.innerHTML = `
+                        @csrf
+                        @method('DELETE')
+                    `;
+						document.body.appendChild(form);
+						form.submit();
+					}
+				});
+			}
+		</script>
+	@endpush
 </x-app-layout>

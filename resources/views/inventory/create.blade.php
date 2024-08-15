@@ -13,7 +13,7 @@
 			</div>
 			<div class="mb-4">
 				<label class="mb-2 block text-sm font-bold text-gray-700" for="quantity">
-					Jumlah
+					Stock
 				</label>
 				<input type="number" name="quantity" id="quantity"
 					class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
