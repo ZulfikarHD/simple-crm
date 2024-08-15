@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "lucide": "^0.417.0",
+        "sweetalert2": "^11.12.4",
         "toastify-js": "^1.12.0"
     }
 }

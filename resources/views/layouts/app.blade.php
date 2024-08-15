@@ -54,6 +54,7 @@
 			</main>
 		</div>
 	</div>
+    @stack('sweet-alert')
 </body>
 
 </html>
