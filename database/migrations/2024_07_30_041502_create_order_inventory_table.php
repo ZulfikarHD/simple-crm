@@ -16,6 +16,10 @@ return new class extends Migration
             $table->foreignId('order_id')->references('id')->on('orders')->constrained()->onDelete('cascade');
             $table->foreignId('inventory_id')->references('id')->on('inventory')->constrained()->onDelete('cascade');
             $table->integer('quantity_used');
+            $table->decimal('price_per_unit', 10, 2);
+            $table->decimal('discount', 10, 2)->default(0);
+            $table->decimal('tax_rate', 5, 2)->default(0);
+            $table->decimal('total_price', 10, 2);
             $table->timestamps();
         });
     }
