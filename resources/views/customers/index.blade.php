@@ -32,7 +32,7 @@
         @endif
 
         <!-- Tabel Pelanggan -->
-        <div class="overflow-x-auto bg-white rounded-lg shadow">
+        <div class="overflow-x-auto bg-white rounded-lg shadow"><div class="overflow-x-auto bg-white rounded-lg shadow">
             <table class="min-w-full">
                 <thead class="bg-green-500 text-white">
                     <tr>
@@ -40,6 +40,8 @@
                         <th class="py-3 px-4 text-left">Alamat</th>
                         <th class="py-3 px-4 text-left">Nomor Telepon</th>
                         <th class="py-3 px-4 text-left">Email</th>
+                        <th class="py-3 px-4 text-left">Status</th>
+                        <th class="py-3 px-4 text-left">Total Orders</th>
                         <th class="py-3 px-4 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -50,6 +52,18 @@
                             <td class="py-3 px-4">{{ $customer->address }}</td>
                             <td class="py-3 px-4">{{ $customer->phone_number }}</td>
                             <td class="py-3 px-4">{{ $customer->email }}</td>
+                            <td class="py-3 px-4">
+                                @if($customer->status == 'active')
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        Tidak Aktif
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="py-3 px-4">{{ $customer->orders_count }}</td>
                             <td class="py-3 px-4 text-center flex justify-center space-x-2">
                                 <a href="{{ route('customers.show', $customer->id) }}" class="text-blue-500 hover:underline" title="Detail">
                                     <i data-lucide="eye" class="w-5 h-5"></i>
@@ -69,6 +83,13 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6">
+            {{ $customers->links() }}
+        </div>
+
         </div>
 
         <!-- Paginasi -->
