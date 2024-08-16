@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -7,9 +8,32 @@ use App\Models\Order;
 
 class InvoiceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $invoices = Invoice::with('order.customer')->get();
+        $query = Invoice::with('order.customer');
+
+        // Apply search filter
+        if ($request->has('search') && $request->search != '') {
+            $query->whereHas('order.customer', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Apply status filter
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // Apply sorting
+        if ($request->has('sort_by') && $request->sort_by != '') {
+            $sortDirection = $request->sort_direction ?? 'asc';
+            $query->orderBy($request->sort_by, $sortDirection);
+        } else {
+            $query->orderBy('issue_date', 'desc'); // Default sorting
+        }
+
+        $invoices = $query->paginate(10);
+
         return view('invoices.index', compact('invoices'));
     }
 
@@ -69,12 +93,5 @@ class InvoiceController extends Controller
         $invoice->delete();
 
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
-    }
-
-    public function updateInvoiceStatus(Invoice $invoice)
-    {
-        $totalPaid = $invoice->payments()->sum('amount');
-        $invoice->status = $totalPaid >= $invoice->amount ? 'Paid' : ($totalPaid > 0 ? 'Partially Paid' : 'Pending');
-        $invoice->save();
     }
 }

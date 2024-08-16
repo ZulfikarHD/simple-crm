@@ -10,7 +10,7 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $payments = Payment::with('invoice.order.customer')->get();
+        $payments = Payment::with('invoice.order.customer')->paginate(10);
         return view('payments.index', compact('payments'));
     }
 
@@ -43,10 +43,10 @@ class PaymentController extends Controller
         return view('payments.show', compact('payment'));
     }
 
-    public function updateInvoiceStatus(Invoice $invoice)
+    private function updateInvoiceStatus(Invoice $invoice)
     {
         $totalPaid = $invoice->payments()->sum('amount');
-        $invoice->status = $totalPaid >= $invoice->amount ? 'Paid' : ($totalPaid > 0 ? 'Partially Paid' : 'Pending');
+        $invoice->status = $totalPaid >= $invoice->amount ? 'paid' : ($totalPaid > 0 ? 'partially paid' : 'pending');
         $invoice->save();
     }
 }

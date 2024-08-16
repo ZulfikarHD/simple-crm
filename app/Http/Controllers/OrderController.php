@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -9,9 +8,27 @@ use App\Models\Inventory;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with('customer')->get();
+        $query = Order::with('customer');
+
+        // Apply search filter
+        if ($request->has('search') && $request->search != '') {
+            $query->whereHas('customer', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Apply sorting
+        if ($request->has('sort_by') && $request->sort_by != '') {
+            $sortDirection = $request->sort_direction ?? 'asc';
+            $query->orderBy($request->sort_by, $sortDirection);
+        } else {
+            $query->orderBy('created_at', 'desc'); // Default sorting
+        }
+
+        $orders = $query->paginate(10);
+
         return view('order-management.index', compact('orders'));
     }
 
@@ -26,25 +43,15 @@ class OrderController extends Controller
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
+            'service_date' => 'required|date',
+            'status' => 'required|string|max:255',
             'items' => 'required|array',
             'items.*.inventory_id' => 'required|exists:inventories,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.price_per_unit' => 'required|numeric|min:0',
         ]);
 
-        foreach ($request->items as $item) {
-            $inventory = Inventory::findOrFail($item['inventory_id']);
-            if ($item['quantity'] > $inventory->quantity) {
-                return redirect()->back()->withErrors(['error' => 'Quantity exceeds available stock for ' . $inventory->item_name]);
-            }
-        }
-
-        $order = Order::create([
-            'customer_id' => $request->customer_id,
-            'service_date' => $request->service_date,
-            'status' => $request->status,
-            'notes' => $request->notes,
-        ]);
+        $order = Order::create($request->only(['customer_id', 'service_date', 'status']));
 
         foreach ($request->items as $item) {
             $order->items()->attach($item['inventory_id'], [
@@ -77,6 +84,8 @@ class OrderController extends Controller
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
+            'service_date' => 'required|date',
+            'status' => 'required|string|max:255',
             'items' => 'required|array',
             'items.*.inventory_id' => 'required|exists:inventories,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -84,12 +93,7 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($id);
-        $order->update([
-            'customer_id' => $request->customer_id,
-            'service_date' => $request->service_date,
-            'status' => $request->status,
-            'notes' => $request->notes,
-        ]);
+        $order->update($request->only(['customer_id', 'service_date', 'status']));
 
         $order->items()->detach();
         foreach ($request->items as $item) {
