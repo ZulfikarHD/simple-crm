@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->references('id')->on('customers')->constrained()->onDelete('cascade');
             $table->date('service_date');
-            $table->string('status');
             $table->text('notes')->nullable();
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }

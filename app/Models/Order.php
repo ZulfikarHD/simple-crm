@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -22,23 +23,26 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function invoice() : HasOne
+    // public function inventories() : BelongsToMany
+    // {
+    //     return $this->belongsToMany(Inventory::class)->withPivot('quantity', 'unit_price');
+    // }
+
+    public function payments() : HasMany
     {
-        return $this->hasOne(Invoice::class);
+        return $this->hasMany(Payment::class);
     }
 
-    public function orderInventories() : HasMany
+    public function getTotalAmountAttribute()
     {
-        return $this->hasMany(OrderInventory::class);
+        return $this->inventories->sum(function ($inventory) {
+            return $inventory->pivot->quantity * $inventory->pivot->unit_price;
+        });
     }
-
-    public function serviceHistories() : HasMany
-    {
-        return $this->hasMany(ServiceHistory::class);
-    }
-
-    public function reminders() : HasMany
-    {
-        return $this->hasMany(Reminder::class);
-    }
+    public function inventories()
+{
+    return $this->belongsToMany(Inventory::class, 'order_inventory')
+                ->withPivot('quantity_used', 'price_per_unit', 'discount', 'tax_rate', 'total_price')
+                ->withTimestamps();
+}
 }

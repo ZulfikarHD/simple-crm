@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->date('payment_date');
-            $table->string('payment_method');
-            $table->string('status')->default('pending');
+            $table->string('payment_method')->default('cash');
             $table->timestamps();
         });
     }
