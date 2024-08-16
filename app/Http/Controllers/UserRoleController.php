@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class LoyalityController extends Controller
+class UserRoleController extends Controller
 {
     public function index()
     {
-        return view('customers.loyality');
+        return view('settings.user-roles');
     }
 }

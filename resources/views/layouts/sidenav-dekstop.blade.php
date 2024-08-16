@@ -172,12 +172,12 @@
                                     </x-nav-link>
                                 </li>
                                 <li>
-                                    <x-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.index')">
+                                    <x-nav-link href="{{ route('user-management.index') }}" :active="request()->routeIs('user-managment.index')">
                                         {{ __('User Management') }}
                                     </x-nav-link>
                                 </li>
                                 <li>
-                                    <x-nav-link href="{{ route('roles.index') }}" :active="request()->routeIs('roles.index')">
+                                    <x-nav-link href="{{ route('user-roles.index') }}" :active="request()->routeIs('user-roles.index')">
                                         {{ __('Role Management') }}
                                     </x-nav-link>
                                 </li>
