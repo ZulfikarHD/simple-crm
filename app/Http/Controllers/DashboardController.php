@@ -1,65 +1,88 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\Customer;
 use App\Models\Invoice;
-use App\Models\Reminder;
+use App\Models\Customer;
+use App\Models\Inventory;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Ambil data statistik utama
-        $totalSales = Invoice::sum('amount');
+        // Key Metrics
+        $totalSales = Invoice::where('status', 'paid')->sum('amount');
         $activeOrders = Order::where('status', 'active')->count();
-        $pendingOrders = Order::where('status', 'pending')->count();
-        $completedOrders = Order::where('status', 'completed')->count();
-        $totalCustomers = Customer::count();
         $customerSatisfaction = $this->calculateCustomerSatisfaction();
-        $totalRevenue = 10000000;
-        $customers = Customer::all();
+        $lowStockItems = Inventory::where('quantity', '<=', 10)->count();
 
-        // Ambil aktivitas terbaru
+        // Sales Data for Chart
+        $salesData = $this->getSalesData();
+        $salesCategories = $this->getSalesCategories();
+
+        // Order Status Data for Chart
+        $ordersData = $this->getOrdersData();
+        $orderStatuses = ['Completed', 'Processing', 'Canceled'];
+
+        // Recent Activities
         $recentActivities = $this->getRecentActivities();
 
-        // Ambil notifikasi penting
-        $importantNotifications = $this->getImportantNotifications();
-
         return view('dashboard', compact(
-            'customers',
             'totalSales',
             'activeOrders',
-            'pendingOrders',
-            'completedOrders',
-            'totalCustomers',
             'customerSatisfaction',
-            'recentActivities',
-            'importantNotifications',
-            'totalRevenue'
+            'lowStockItems',
+            'salesData',
+            'salesCategories',
+            'ordersData',
+            'orderStatuses',
+            'recentActivities'
         ));
     }
 
     private function calculateCustomerSatisfaction()
     {
-        // Logika untuk menghitung kepuasan pelanggan (placeholder)
-        return 90; // Placeholder value
+        // Placeholder for actual logic
+        return 90; // e.g., percentage based on feedback
+    }
+
+    private function getSalesData()
+    {
+        // Retrieve sales data for the past 7 days
+        $salesData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $salesData[] = Invoice::whereDate('created_at', $date)->sum('amount');
+        }
+        return $salesData;
+    }
+
+    private function getSalesCategories()
+    {
+        // Retrieve the date labels for the past 7 days
+        $categories = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $categories[] = Carbon::now()->subDays($i)->format('d M');
+        }
+        return $categories;
+    }
+
+    private function getOrdersData()
+    {
+        // Count orders by status
+        $completed = Order::where('status', 'completed')->count();
+        $processing = Order::where('status', 'processing')->count();
+        $canceled = Order::where('status', 'canceled')->count();
+
+        return [$completed, $processing, $canceled];
     }
 
     private function getRecentActivities()
     {
-        // Logika untuk mendapatkan aktivitas terbaru (placeholder)
-        return Order::with('customer') // Eager load customer data
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-    }
-
-    private function getImportantNotifications()
-    {
-        // Logika untuk mendapatkan notifikasi penting (placeholder)
-        return Reminder::orderBy('reminder_date', 'asc')->take(5)->get();
+        // Retrieve the 5 most recent orders, payments, or customer interactions
+        return Order::latest()->take(5)->get();
     }
 }
-
