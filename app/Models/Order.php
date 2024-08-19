@@ -18,31 +18,21 @@ class Order extends Model
         'customer_id', 'service_date', 'status', 'notes'
     ];
 
-    public function customer() : BelongsTo
+
+    public function customer()
     {
         return $this->belongsTo(Customer::class);
     }
 
-    // public function inventories() : BelongsToMany
-    // {
-    //     return $this->belongsToMany(Inventory::class)->withPivot('quantity', 'unit_price');
-    // }
+    public function inventories()
+    {
+        return $this->belongsToMany(Inventory::class, 'order_inventory')
+                    ->withPivot('quantity_used', 'price_per_unit', 'discount', 'tax_rate', 'total_price')
+                    ->withTimestamps();
+    }
 
-    public function payments() : HasMany
+    public function payments()
     {
         return $this->hasMany(Payment::class);
     }
-
-    public function getTotalAmountAttribute()
-    {
-        return $this->inventories->sum(function ($inventory) {
-            return $inventory->pivot->quantity * $inventory->pivot->unit_price;
-        });
-    }
-    public function inventories()
-{
-    return $this->belongsToMany(Inventory::class, 'order_inventory')
-                ->withPivot('quantity_used', 'price_per_unit', 'discount', 'tax_rate', 'total_price')
-                ->withTimestamps();
-}
 }

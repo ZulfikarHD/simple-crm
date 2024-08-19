@@ -83,7 +83,7 @@
 
     <!-- ApexCharts JS Integration -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
+    <script type="module">
         var salesChart = new ApexCharts(document.querySelector("#salesChart"), {
             chart: { type: 'line', height: 350 },
             series: [{ name: 'Sales', data: @json($salesData) }],

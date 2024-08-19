@@ -1,95 +1,163 @@
 <x-app-layout>
-    <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold mb-6">Kelola Pesanan</h1>
+	<div class="container mx-auto space-y-6 p-6">
+		<div class="flex items-center justify-between">
+			<h1 class="text-3xl font-bold text-gray-800">Daftar Pesanan</h1>
+			<form method="GET" action="{{ route('orders.index') }}" class="flex space-x-4">
+				<input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Pesanan..."
+					class="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-blue-500 md:w-auto">
+				<select name="status" class="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-blue-500 md:w-auto">
+					<option value="">Filter Status</option>
+					<option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+					<option value="partially_paid" {{ request('status') == 'partially_paid' ? 'selected' : '' }}>Partially Paid
+					</option>
+					<option value="fully_paid" {{ request('status') == 'fully_paid' ? 'selected' : '' }}>Fully Paid</option>
+				</select>
+				<button type="submit" class="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Filter</button>
+			</form>
+		</div>
 
-        <!-- Card Wrapper -->
-        <div class="bg-white shadow-lg rounded-lg p-6">
-            <!-- Filters and Sorting -->
-            <div class="mb-6">
-                <form class="flex items-center space-x-4">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama pelanggan..." class="w-1/3 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+		<!-- Summary Chart -->
+		<div class="bg-white p-6 shadow sm:rounded-lg">
+			<h2 class="mb-4 text-lg font-semibold text-gray-800">Ringkasan Pesanan</h2>
+			<div id="ordersChart"></div>
+		</div>
 
-                    <select name="status" class="w-1/4 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Semua Status</option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
-                        <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Sedang Diproses</option>
-                        <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>Dibatalkan</option>
-                    </select>
+		<div class="overflow-hidden bg-white shadow sm:rounded-lg">
+			<table class="min-w-full divide-y divide-gray-200">
+				<thead class="bg-gray-50">
+					<tr>
+						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">ID
+							Pesanan</th>
+						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+							Pelanggan</th>
+						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Tanggal
+							Layanan</th>
+						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status
+						</th>
+						<th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Total
+						</th>
+						<th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Aksi
+						</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-200 bg-white">
+					@foreach ($orders as $order)
+						<tr>
+							<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ $order->id }}</td>
+							<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+								{{ $order->customer->name }}
+								<div x-data="{ open: false }">
+									<button @click="open = !open" class="mt-2 flex items-center text-sm text-blue-500 hover:underline">
+										<i data-lucide="chevron-down" class="inline-block h-4 w-4"></i> Lihat Item
+									</button>
+									<ul x-show="open" x-transition:enter="transition ease-out duration-300"
+										x-transition:enter-start="opacity-0 transform scale-95"
+										x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200"
+										x-transition:leave-start="opacity-100 transform scale-100"
+										x-transition:leave-end="opacity-0 transform scale-95"
+										class="mt-2 list-inside list-disc text-sm text-gray-500">
+										@foreach ($order->inventories as $inventory)
+											<li>{{ $inventory->item_name }} ({{ $inventory->pivot->quantity_used }} unit)</li>
+										@endforeach
+									</ul>
+								</div>
+							</td>
+							<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+								{{ \Carbon\Carbon::parse($order->service_date)->format('d M Y') }}
+							</td>
+							<td class="whitespace-nowrap px-6 py-4 text-sm">
+								<span
+									class="{{ $order->status == 'pending' ? 'bg-red-100 text-red-800' : ($order->status == 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }} inline-flex rounded-full px-2 text-xs font-semibold leading-5">
+									{{ ucfirst($order->status) }}
+								</span>
+							</td>
+							<td class="whitespace-nowrap px-6 py-4 text-right text-sm text-gray-500">
+								Rp {{ number_format($order->total_amount, 2) }}
+							</td>
+							<td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+								<div class="flex justify-end space-x-4">
+									<a href="{{ route('orders.show', $order->id) }}" class="text-blue-500 hover:text-blue-700">
+										<i data-lucide="eye" class="h-5 w-5"></i>
+									</a>
+									<a href="{{ route('orders.edit', $order->id) }}" class="text-yellow-500 hover:text-yellow-700">
+										<i data-lucide="edit" class="h-5 w-5"></i>
+									</a>
+									<button type="button" class="text-red-500 hover:text-red-700" onclick="confirmDelete({{ $order->id }});">
+										<i data-lucide="trash" class="h-5 w-5"></i>
+									</button>
+									<form id="delete-form-{{ $order->id }}" action="{{ route('orders.destroy', $order->id) }}" method="POST"
+										style="display: none;">
+										@csrf
+										@method('DELETE')
+									</form>
+								</div>
+							</td>
+						</tr>
+					@endforeach
+				</tbody>
+			</table>
+		</div>
 
-                    <select name="sort_by" class="w-1/4 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Tanggal Pesanan</option>
-                        <option value="service_date" {{ request('sort_by') == 'service_date' ? 'selected' : '' }}>Tanggal Layanan</option>
-                    </select>
+		<!-- Pagination -->
+		<div class="mt-4">
+			{{ $orders->appends(request()->input())->links() }}
+		</div>
+	</div>
 
-                    <select name="sort_direction" class="w-1/4 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="asc" {{ request('sort_direction') == 'asc' ? 'selected' : '' }}>Naik</option>
-                        <option value="desc" {{ request('sort_direction') == 'desc' ? 'selected' : '' }}>Turun</option>
-                    </select>
+	<!-- ApexCharts Script -->
+	@push('scripts')
+		<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				var options = {
+					chart: {
+						type: 'pie',
+						height: '100%'
+					},
+					series: [
+						{{ $orders->where('status', 'pending')->count() }},
+						{{ $orders->where('status', 'partially_paid')->count() }},
+						{{ $orders->where('status', 'fully_paid')->count() }}
+					],
+					labels: ['Pending', 'Partially Paid', 'Fully Paid'],
+					colors: ['#f87171', '#facc15', '#4ade80'],
+					responsive: [{
+						breakpoint: 480,
+						options: {
+							chart: {
+								width: 300
+							},
+							legend: {
+								position: 'bottom'
+							}
+						}
+					}]
+				};
 
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Terapkan</button>
-                </form>
-            </div>
+				var chart = new ApexCharts(document.querySelector("#ordersChart"), options);
+				chart.render();
+			});
+		</script>
+	@endpush
 
-            <!-- Orders Table -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="py-2 px-4 text-left">Nama Pelanggan</th>
-                            <th class="py-2 px-4 text-left">Tanggal Pesanan</th>
-                            <th class="py-2 px-4 text-left">Tanggal Layanan</th>
-                            <th class="py-2 px-4 text-left">Status</th>
-                            <th class="py-2 px-4 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @foreach($orders as $order)
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-2 px-4">{{ $order->customer->name }}</td>
-                                <td class="py-2 px-4">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}</td>
-                                <td class="py-2 px-4">{{ \Carbon\Carbon::parse($order->service_date)->format('d M Y') }}</td>
-                                <td class="py-2 px-4">
-                                    @if($order->status == 'completed')
-                                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Selesai</span>
-                                    @elseif($order->status == 'processing')
-                                        <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">Sedang Diproses</span>
-                                    @else
-                                        <span class="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded">Dibatalkan</span>
-                                    @endif
-                                </td>
-                                <td class="py-2 px-4 text-center">
-                                    <div x-data="{ open: false }" class="relative inline-block text-left">
-                                        <button @click="open = !open" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" id="options-menu" aria-expanded="true" aria-haspopup="true">
-                                            Aksi
-                                            <svg :class="{ 'rotate-180': open }" class="ml-2 h-5 w-5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-
-                                        <div x-show="open" @click.away="open = false" class="origin-top-left absolute mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                            <div class="py-1">
-                                                <a href="{{ route('orders.show', $order->id) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">Lihat Detail</a>
-                                                <a href="{{ route('orders.edit', $order->id) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">Edit</a>
-                                                <form action="{{ route('orders.destroy', $order->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus pesanan ini?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Hapus</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="mt-6">
-                {{ $orders->links() }}
-            </div>
-        </div>
-        <!-- End of Card Wrapper -->
-    </div>
+	<!-- SweetAlert2 Script -->
+	@push('sweet-alert')
+		<script>
+			function confirmDelete(orderId) {
+				Swal.fire({
+					title: 'Konfirmasi Hapus',
+					text: "Anda yakin ingin menghapus pesanan ini?",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonText: 'Ya, hapus!',
+					cancelButtonText: 'Batal'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						document.getElementById('delete-form-' + orderId).submit();
+						Swal.fire('Dihapus!', 'Pesanan telah dihapus.', 'success');
+					}
+				});
+			}
+		</script>
+	@endpush
 </x-app-layout>

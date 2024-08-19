@@ -13,11 +13,11 @@ class Payment extends Model
     protected $table = 'payments';
 
     protected $fillable = [
-        'invoice_id', 'payment_date', 'amount', 'payment_method'
+        'order_id', 'amount', 'payment_date', 'payment_method'
     ];
 
-    public function invoice() : BelongsTo
+    public function order()
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo(Order::class);
     }
 }

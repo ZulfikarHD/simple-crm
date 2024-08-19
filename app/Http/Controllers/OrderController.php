@@ -2,36 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\Customer;
 use App\Models\Inventory;
-use App\Models\Payment;
+use App\Models\Customer;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        // Get filters and sorting from the request
-        $search = $request->input('search');
-        $status = $request->input('status');
-        $sort_by = $request->input('sort_by', 'created_at');
-        $sort_direction = $request->input('sort_direction', 'asc');
+        $query = Order::with('customer', 'inventories');
 
-        // Query orders with filters, sorting, and pagination
-        $orders = Order::with('customer')
-            ->when($search, function ($query, $search) {
-                return $query->whereHas('customer', function ($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%');
-                });
-            })
-            ->when($status, function ($query, $status) {
-                return $query->where('status', $status);
-            })
-            ->orderBy($sort_by, $sort_direction)
-            ->paginate(10);
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
 
-        return view('orders.index', compact('orders', 'search', 'status', 'sort_by', 'sort_direction'));
+        if ($request->has('search') && $request->search != '') {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $orders = $query->paginate(3);
+
+        return view('orders.index', compact('orders'));
     }
 
     public function create()
@@ -43,6 +37,7 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+        // Validate the request
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'service_date' => 'required|date',
@@ -65,117 +60,133 @@ class OrderController extends Controller
 
         // Attach items to the order and update inventory
         foreach ($request->items as $item) {
+            $discount = $item['discount'] ?? 0;
+            $taxRate = $item['tax_rate'] ?? 0;
 
-            if(isset($item['discount'])){
-                $discount = $item['discount'];
-            } else {
-                $discount = 0;
-            }
-
-            if(isset($item['tax_rate'])){
-                $taxRate = $item['tax_rate'];
-            } else {
-                $taxRate = 0;
-            }
-
-
+            // Verify inventory item exists before proceeding
             $inventoryItem = Inventory::find($item['inventory_id']);
+            if (!$inventoryItem) {
+                // If the inventory item is not found, rollback the transaction and show an error
+                return back()->withErrors(['inventory' => 'One or more selected inventory items are invalid or no longer available.']);
+            }
 
             $priceBeforeTax = $inventoryItem->unit_price * $item['quantity_used'];
             $totalPrice = $priceBeforeTax - $discount + ($priceBeforeTax * ($taxRate / 100));
 
-            $order->inventories()->attach($item['inventory_id'], [
+            // Attach inventory item to the order
+            $order->inventories()->attach($inventoryItem->id, [
                 'quantity_used' => $item['quantity_used'],
                 'price_per_unit' => $inventoryItem->unit_price,
-                'discount' => $discount ?? 0,
-                'tax_rate' => $taxRate ?? 0,
+                'discount' => $discount,
+                'tax_rate' => $taxRate,
                 'total_price' => $totalPrice,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            $inventoryItem->decrement('quantity', $item['quantity_used']);
-        }
-
-        // Handle Payment
-        if ($request->process_payment && $request->payment_amount > 0) {
-            $order->payments()->create([
-                'amount' => $request->payment_amount,
-                'payment_date' => now(),
-                'payment_method' => 'cash', // Or get from form
-            ]);
+            // Optionally update inventory quantity if needed
+            // $inventoryItem->decrement('quantity', $item['quantity_used']);
         }
 
         return redirect()->route('orders.index')->with('success', 'Order created successfully.');
     }
 
-    public function show($id)
+
+    public function show(Order $order)
     {
-        $order = Order::with('customer', 'inventories')->findOrFail($id);
         return view('orders.show', compact('order'));
     }
 
-    public function edit($id)
+    public function edit(Order $order)
     {
-        $order = Order::findOrFail($id);
         $customers = Customer::all();
         $inventoryItems = Inventory::all();
         return view('orders.edit', compact('order', 'customers', 'inventoryItems'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Order $order)
     {
+        // Validate the request
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'service_date' => 'required|date',
             'items' => 'required|array|min:1',
             'items.*.inventory_id' => 'required|exists:inventories,id',
             'items.*.quantity_used' => 'required|integer|min:1',
+            'items.*.discount' => 'nullable|numeric|min:0',
+            'items.*.tax_rate' => 'nullable|numeric|min:0|max:100',
             'notes' => 'nullable|string',
             'payment_amount' => 'nullable|numeric|min:0',
+            'process_payment' => 'sometimes|boolean',
         ]);
 
-        $order = Order::findOrFail($id);
+        // Calculate the total order amount
+        $totalOrderAmount = 0;
+        foreach ($request->items as $item) {
+            $inventoryItem = Inventory::find($item['inventory_id']);
+            $priceBeforeTax = $inventoryItem->unit_price * $item['quantity_used'];
+            $totalPrice = $priceBeforeTax - ($item['discount'] ?? 0) + ($priceBeforeTax * (($item['tax_rate'] ?? 0) / 100));
+            $totalOrderAmount += $totalPrice;
+        }
+
+        // Determine the order status based on the payment amount
+        $status = 'pending';
+        if ($request->process_payment) {
+            if ($request->payment_amount >= $totalOrderAmount) {
+                $status = 'fully_paid';
+            } elseif ($request->payment_amount > 0) {
+                $status = 'partially_paid';
+            }
+        }
+
+        // Update the order
         $order->update([
             'customer_id' => $request->customer_id,
             'service_date' => $request->service_date,
             'notes' => $request->notes,
-            'status' => $request->process_payment && $request->payment_amount > 0 ? 'partially_paid' : 'pending',
+            'status' => $status,
+            'total_amount' => $totalOrderAmount,
         ]);
 
-        // Detach existing items and reattach updated items
+        // Sync items with the order
         $order->inventories()->detach();
         foreach ($request->items as $item) {
             $inventoryItem = Inventory::find($item['inventory_id']);
-
             $priceBeforeTax = $inventoryItem->unit_price * $item['quantity_used'];
-            $totalPrice = $priceBeforeTax - $item['discount'] + ($priceBeforeTax * ($item['tax_rate'] / 100));
+            $totalPrice = $priceBeforeTax - ($item['discount'] ?? 0) + ($priceBeforeTax * (($item['tax_rate'] ?? 0) / 100));
 
-            $order->inventories()->attach($item['inventory_id'], [
+            $order->inventories()->attach($inventoryItem->id, [
                 'quantity_used' => $item['quantity_used'],
                 'price_per_unit' => $inventoryItem->unit_price,
                 'discount' => $item['discount'] ?? 0,
                 'tax_rate' => $item['tax_rate'] ?? 0,
                 'total_price' => $totalPrice,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            $inventoryItem->decrement('quantity', $item['quantity_used']);
+            // Optionally update inventory quantity if needed
+            // $inventoryItem->decrement('quantity', $item['quantity_used']);
         }
 
-        // Handle Payment (If any update is required)
+        // Update or add payment if it was made
         if ($request->process_payment && $request->payment_amount > 0) {
             $order->payments()->create([
                 'amount' => $request->payment_amount,
                 'payment_date' => now(),
-                'payment_method' => 'cash',
+                'payment_method' => 'cash', // Adjust as needed
+                'status' => $status == 'fully_paid' ? 'completed' : 'partial',
             ]);
         }
 
         return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
     }
 
+
     public function destroy($id)
     {
         $order = Order::findOrFail($id);
-        $order->inventories()->detach(); // Detach associated inventories
+        $order->inventories()->detach();
         $order->delete();
 
         return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');

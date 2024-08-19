@@ -54,6 +54,7 @@
 			</main>
 		</div>
 	</div>
+    @stack('js')
     @stack('sweet-alert')
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
