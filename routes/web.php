@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
+
     Route::resource('orders', OrderController::class);
     Route::resource('invoices', InvoiceController::class);
     Route::resource('payments', PaymentController::class);
@@ -67,6 +68,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/user-management', [UserController::class, 'index'])->name('user-management.index');
     Route::get('/user-roles',[UserRoleController::class, 'index'])->name('user-roles.index');
     Route::get('/business-management', [BusinessController::class, 'index'])->name('business-management.index');
+
+    Route::get('/orders/create', [OrderController::class, 'createOrder'])->name('orders.create-order');
+    Route::post('/orders/create', [OrderController::class, 'storeOrder'])->name('orders.store-order');
+    Route::get('/orders/create/payment', [OrderController::class, 'createPayment'])->name('orders.create-payment');
+    Route::post('/orders/create/payment', [OrderController::class, 'storePayment'])->name('orders.store-payment');
 
 });
 

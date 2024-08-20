@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->references('id')->on('customers')->constrained()->onDelete('cascade');
             $table->date('service_date');
-            $table->text('notes')->nullable();
-            $table->string('status')->default('pending');
+            $table->enum('status', ['pending', 'partially_paid', 'fully_paid'])->default('pending');
+            $table->decimal('subtotal', 10, 2);
+            $table->decimal('total_amount', 10, 2);
             $table->timestamps();
         });
     }

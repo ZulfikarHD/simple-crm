@@ -75,7 +75,7 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <a href="{{ route('orders.create') }}" class="bg-blue-500 text-white text-center py-2 px-4 rounded-lg shadow hover:bg-blue-700">Create Order</a>
+            <a href="{{ route('orders.create-order') }}" class="bg-blue-500 text-white text-center py-2 px-4 rounded-lg shadow hover:bg-blue-700">Create Order</a>
             <a href="{{ route('customers.create') }}" class="bg-green-500 text-white text-center py-2 px-4 rounded-lg shadow hover:bg-green-700">Add Customer</a>
             <a href="{{ route('invoices.create') }}" class="bg-yellow-500 text-white text-center py-2 px-4 rounded-lg shadow hover:bg-yellow-700">Generate Invoice</a>
         </div>

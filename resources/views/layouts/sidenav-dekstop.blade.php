@@ -13,21 +13,21 @@
                         {{-- Dashboard --}}
                         <li>
                             <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                                <i data-lucide="home" class="w-4 h-4 mr-2"></i>{{ __('Dashboard') }}
+                                <i data-lucide="home" class="w-5 h-5 mr-2"></i>{{ __('Dashboard') }}
                             </x-nav-link>
                         </li>
 
                         {{-- Orders --}}
                         <li x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-600 hover:bg-gray-200 px-2 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <i data-lucide="clipboard" class="w-4 h-4 mr-2"></i>{{ __('Manajemen Pesanan') }}
-                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-4 w-4 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-700 hover:bg-gray-200 px-2 py-2 rounded-lg transition duration-150 ease-in-out">
+                                <i data-lucide="clipboard" class="w-5 h-5 mr-2"></i>{{ __('Manajemen Pesanan') }}
+                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-5 w-5 transition-transform transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
                             <ul x-show="open" x-transition class="mt-2 space-y-2 pl-6">
                                 <li>
-                                    <x-nav-link href="{{ route('orders.create') }}" :active="request()->routeIs('orders.create')">
+                                    <x-nav-link href="{{ route('orders.create-order') }}" :active="request()->routeIs('orders.create-order')">
                                         {{ __('Buat Pesanan') }}
                                     </x-nav-link>
                                 </li>
@@ -41,9 +41,9 @@
 
                         {{-- Invoices --}}
                         <li x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-600 hover:bg-gray-200 px-2 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <i data-lucide="credit-card" class="w-4 h-4 mr-2"></i>{{ __('Faktur dan Pembayaran') }}
-                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-4 w-4 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-700 hover:bg-gray-200 px-2 py-2 rounded-lg transition duration-150 ease-in-out">
+                                <i data-lucide="credit-card" class="w-5 h-5 mr-2"></i>{{ __('Faktur dan Pembayaran') }}
+                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-5 w-5 transition-transform transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -68,9 +68,9 @@
 
                         {{-- Customers --}}
                         <li x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-600 hover:bg-gray-200 px-2 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <i data-lucide="users" class="w-4 h-4 mr-2"></i>{{ __('Manajemen Pelanggan') }}
-                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-4 w-4 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-700 hover:bg-gray-200 px-2 py-2 rounded-lg transition duration-150 ease-in-out">
+                                <i data-lucide="users" class="w-5 h-5 mr-2"></i>{{ __('Manajemen Pelanggan') }}
+                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-5 w-5 transition-transform transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -85,24 +85,14 @@
                                         {{ __('Tambah Customer') }}
                                     </x-nav-link>
                                 </li>
-                                {{-- <li>
-                                    <x-nav-link href="{{ route('loyalty.index') }}" :active="request()->routeIs('loyalty.index')">
-                                        {{ __('Program Loyalitas') }}
-                                    </x-nav-link>
-                                </li>
-                                <li>
-                                    <x-nav-link href="{{ route('segments.index') }}" :active="request()->routeIs('segments.index')">
-                                        {{ __('Segmen Pelanggan') }}
-                                    </x-nav-link>
-                                </li> --}}
                             </ul>
                         </li>
 
                         {{-- Inventory --}}
                         <li x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-600 hover:bg-gray-200 px-2 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <i data-lucide="box" class="w-4 h-4 mr-2"></i>{{ __('Inventaris') }}
-                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-4 w-4 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-700 hover:bg-gray-200 px-2 py-2 rounded-lg transition duration-150 ease-in-out">
+                                <i data-lucide="box" class="w-5 h-5 mr-2"></i>{{ __('Inventaris') }}
+                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-5 w-5 transition-transform transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -132,9 +122,9 @@
 
                         {{-- Reports --}}
                         <li x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-600 hover:bg-gray-200 px-2 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>{{ __('Laporan') }}
-                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-4 w-4 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-700 hover:bg-gray-200 px-2 py-2 rounded-lg transition duration-150 ease-in-out">
+                                <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>{{ __('Laporan') }}
+                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-5 w-5 transition-transform transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -159,9 +149,9 @@
 
                         {{-- Settings --}}
                         <li x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-600 hover:bg-gray-200 px-2 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <i data-lucide="settings" class="w-4 h-4 mr-2"></i>{{ __('Pengaturan') }}
-                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-4 w-4 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button @click="open = !open" class="flex items-center w-full text-left text-gray-700 hover:bg-gray-200 px-2 py-2 rounded-lg transition duration-150 ease-in-out">
+                                <i data-lucide="settings" class="w-5 h-5 mr-2"></i>{{ __('Pengaturan') }}
+                                <svg :class="{ 'rotate-180': open }" class="ml-auto h-5 w-5 transition-transform transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -172,7 +162,7 @@
                                     </x-nav-link>
                                 </li>
                                 <li>
-                                    <x-nav-link href="{{ route('user-management.index') }}" :active="request()->routeIs('user-managment.index')">
+                                    <x-nav-link href="{{ route('user-management.index') }}" :active="request()->routeIs('user-management.index')">
                                         {{ __('User Management') }}
                                     </x-nav-link>
                                 </li>

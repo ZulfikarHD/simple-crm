@@ -19,7 +19,7 @@ class Order extends Model
     ];
 
 
-    public function customer()
+    public function customer() : BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
@@ -31,8 +31,13 @@ class Order extends Model
                     ->withTimestamps();
     }
 
-    public function payments()
+    public function payments() : HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function invoice() : HasOne
+    {
+        return $this->hasOne(Invoice::class);
     }
 }
