@@ -13,7 +13,7 @@ class Invoice extends Model
     protected $table = "invoices";
 
     protected $fillable = [
-        'invoice_number', 'order_id', 'issue_date', 'due_date', 'amount', 'status'
+        'invoice_number', 'order_id', 'issue_date', 'due_date', 'total_amount', 'status', 'amount_paid'
     ];
 
     public function order() : BelongsTo

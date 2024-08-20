@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->decimal('amount_paid', 10, 2);
-            $table->date('payment_date')->default(now());
+            $table->decimal('amount_paid', 15, 2);
             $table->string('payment_method');
+            $table->timestamp('payment_date')->useCurrent(); // Store the date of payment
             $table->timestamps();
         });
 

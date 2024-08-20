@@ -59,16 +59,16 @@
                 <!-- Full Payment -->
                 <div x-show="paymentType === 'full'" class="mt-4">
                     <label for="payment_amount_full" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran Penuh</label>
-                    <input type="number" name="payment_amount" id="payment_amount_full" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" :value="totalAmount" readonly>
+                    <input type="number" name="payment_amount_full" id="payment_amount_full" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" :value="totalAmount" readonly>
                 </div>
 
                 <!-- Partial Payment -->
                 <div x-show="paymentType === 'partial'" x-cloak class="mt-4">
                     <label for="partial_payment_amount" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran Parsial</label>
-                    <input type="number" name="payment_amount" id="partial_payment_amount" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" x-model="partialAmount" @input="updatePercentage" placeholder="Masukkan jumlah pembayaran">
+                    <input type="number" step="0.01" name="payment_amount" id="partial_payment_amount" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" x-model="partialAmount" @input="updatePercentage" placeholder="Masukkan jumlah pembayaran">
 
                     <label for="payment_percentage" class="block text-sm font-medium text-gray-700 mt-4">Persentase Pembayaran (%)</label>
-                    <input type="number" id="payment_percentage" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" x-model="percentage" @input="updatePartialAmount" placeholder="Masukkan persentase pembayaran">
+                    <input type="number" step="0.01" id="payment_percentage" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" x-model="percentage" @input="updatePartialAmount" placeholder="Masukkan persentase pembayaran">
                 </div>
             </div>
 

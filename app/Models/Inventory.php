@@ -11,7 +11,7 @@ class Inventory extends Model
 {
     use HasFactory;
     // Specify the table name if it's not the plural form of the model name
-    protected $table = 'inventories';
+    protected $table = 'inventory';
 
     // Allow mass assignment on these attributes
     protected $fillable = [

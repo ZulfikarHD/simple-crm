@@ -42,30 +42,30 @@
                         {{-- Invoices --}}
                         <li x-data="{ open: false }">
                             <button @click="open = !open" class="flex items-center w-full text-left text-gray-700 hover:bg-gray-200 px-2 py-2 rounded-lg transition duration-150 ease-in-out">
-                                <i data-lucide="credit-card" class="w-5 h-5 mr-2"></i>{{ __('Faktur dan Pembayaran') }}
+                                <i data-lucide="credit-card" class="w-5 h-5 mr-2"></i>{{ __('Invoice dan Pembayaran') }}
                                 <svg :class="{ 'rotate-180': open }" class="ml-auto h-5 w-5 transition-transform transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
                             <ul x-show="open" x-transition class="mt-2 space-y-2 pl-6">
-                                <li>
+                                {{-- <li>
                                     <x-nav-link href="{{ route('invoices.create') }}" :active="request()->routeIs('invoices.create')">
                                         {{ __('Buat Faktur') }}
+                                    </x-nav-link>
+                                </li> --}}
+                                <li>
+                                    <x-nav-link href="{{ route('payments.create') }}" :active="request()->routeIs('payments.create')">
+                                        {{ __('Pembayaran') }}
                                     </x-nav-link>
                                 </li>
                                 <li>
                                     <x-nav-link href="{{ route('invoices.index') }}" :active="request()->routeIs('invoices.index')">
-                                        {{ __('Kelola Faktur') }}
+                                        {{ __('Data Invoice') }}
                                     </x-nav-link>
                                 </li>
                                 <li>
                                     <x-nav-link href="{{ route('payments.index') }}" :active="request()->routeIs('payments.index')">
-                                        {{ __('Kelola Pembayaran') }}
-                                    </x-nav-link>
-                                </li>
-                                <li>
-                                    <x-nav-link href="{{ route('payments.create') }}" :active="request()->routeIs('payments.create')">
-                                        {{ __('Buat Pembayaran') }}
+                                        {{ __('Data Pembayaran') }}
                                     </x-nav-link>
                                 </li>
                             </ul>

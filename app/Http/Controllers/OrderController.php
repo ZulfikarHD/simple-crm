@@ -6,34 +6,57 @@ use App\Models\Order;
 use App\Models\Inventory;
 use App\Models\Customer;
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
 use App\Models\Payment;
 use DB;
 use Illuminate\Http\Request;
 
+/**
+ * Class OrderController
+ * Handles the management of orders, including creating, updating, and deleting orders,
+ * as well as processing payments and generating invoices.
+ */
 class OrderController extends Controller
 {
+    /**
+     * Display a listing of the orders.
+     *
+     * @param Request $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         $query = Order::with('customer', 'inventories');
 
+        // Filter orders by status if provided
         if ($request->has('status') && $request->status != '') {
             $query->where('status', $request->status);
         }
 
+        // Search for orders by customer name if provided
         if ($request->has('search') && $request->search != '') {
             $query->whereHas('customer', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%');
             });
         }
 
+        // Paginate the results
         $orders = $query->paginate(3);
 
         return view('orders.index', compact('orders'));
     }
 
+    /**
+     * Show the form for creating a new order.
+     *
+     * @return void
+     */
     public function create() {}
 
+    /**
+     * Show the form for creating a new order with customer and item data.
+     *
+     * @return \Illuminate\View\View
+     */
     public function createOrder()
     {
         $customers = Customer::all();
@@ -42,9 +65,15 @@ class OrderController extends Controller
         return view('orders.create-order', compact('customers', 'items'));
     }
 
-
+    /**
+     * Store a newly created order in storage.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeOrder(Request $request)
     {
+        // Validate the incoming request data
         $validatedData = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
             'customer_name' => 'required_without:customer_id|string|max:255',
@@ -78,7 +107,7 @@ class OrderController extends Controller
         }
 
         $discount = $validatedData['discount'] ?? 0;
-        $tax = $validatedData['tax'] ?? 10; // Default tax if not provided
+        $tax = $validatedData['tax'] ?? 11; // Default tax if not provided
         $totalAfterDiscount = $subtotal - ($subtotal * $discount / 100);
         $totalAmount = $totalAfterDiscount + ($totalAfterDiscount * $tax / 100);
 
@@ -91,10 +120,11 @@ class OrderController extends Controller
             'total_amount' => $totalAmount,
         ]);
 
+        // Create an invoice for the order
         Invoice::create([
             'order_id' => $order->id,
             'invoice_number' => 'INV-' . strtoupper(uniqid()), // Unique invoice number
-            'amount' => $totalAmount,
+            'total_amount' => $totalAmount,
             'issue_date'   => now(),
             'due_date'     => $order->service_date,
             'status' => 'unpaid', // Initial status
@@ -117,12 +147,16 @@ class OrderController extends Controller
             session(['order_id' => $order->id]);
             return redirect()->route('orders.create-payment');
         } else {
-
             return redirect()->route('orders.index')->with('success', 'Pesanan berhasil disimpan.');
         }
     }
 
-
+    /**
+     * Show the payment form for a specific order.
+     *
+     * @param Request $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function createPayment(Request $request)
     {
         $orderId = session('order_id');
@@ -134,27 +168,40 @@ class OrderController extends Controller
         return view('orders.create-payment', compact('order'));
     }
 
+    /**
+     * Store a newly created payment in storage.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storePayment(Request $request)
     {
+        // Validate the incoming request data
         $validatedData = $request->validate([
             'order_id' => 'required|exists:orders,id',
             'payment_amount' => 'required|numeric|min:0',
             'payment_method' => 'required|string',
             'payment_type' => 'required|in:partial,full',
+            'payment_amount_full' => 'nullable|numeric|min:0'
         ]);
 
+        // Use a database transaction to ensure data integrity
         DB::transaction(function () use ($validatedData) {
             // Retrieve the order and associated invoice
             $order = Order::with('invoice')->findOrFail($validatedData['order_id']);
             $invoice = $order->invoice;
 
             // Calculate the new total paid including this payment
-            $totalPaid = $order->payments->sum('amount') + $validatedData['payment_amount'];
+            if($validatedData['payment_type'] === 'full'){
+                $totalPaid = $validatedData['payment_amount_full'] - $order->payments->sum('amount');
+            } else {
+                $totalPaid = $order->payments->sum('amount') + $validatedData['payment_amount'];
+            }
 
             // Create the payment record
             Payment::create([
                 'order_id' => $order->id,
-                'amount' => $validatedData['payment_amount'],
+                'amount_paid' => $totalPaid,
                 'payment_method' => $validatedData['payment_method'],
                 'payment_date'   => now(),
             ]);
@@ -180,13 +227,23 @@ class OrderController extends Controller
         return redirect()->route('orders.index')->with('success', 'Pembayaran berhasil disimpan, status pesanan diperbarui, dan invoice diperbarui.');
     }
 
-
-
+    /**
+     * Display the specified order.
+     *
+     * @param Order $order
+     * @return \Illuminate\View\View
+     */
     public function show(Order $order)
     {
         return view('orders.show', compact('order'));
     }
 
+    /**
+     * Show the form for editing the specified order.
+     *
+     * @param Order $order
+     * @return \Illuminate\View\View
+     */
     public function edit(Order $order)
     {
         $customers = Customer::all();
@@ -194,6 +251,13 @@ class OrderController extends Controller
         return view('orders.edit', compact('order', 'customers', 'inventoryItems'));
     }
 
+    /**
+     * Update the specified order in storage.
+     *
+     * @param Request $request
+     * @param Order $order
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Order $order)
     {
         // Validate the request
@@ -254,9 +318,6 @@ class OrderController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-
-            // Optionally update inventory quantity if needed
-            // $inventoryItem->decrement('quantity', $item['quantity_used']);
         }
 
         // Update or add payment if it was made
@@ -272,7 +333,12 @@ class OrderController extends Controller
         return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
     }
 
-
+    /**
+     * Remove the specified order from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         $order = Order::findOrFail($id);
