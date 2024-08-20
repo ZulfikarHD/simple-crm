@@ -1,51 +1,41 @@
 <x-app-layout>
-	<div>
-		<h1 class="mb-6 text-3xl font-bold">Tambah Pembayaran</h1>
-		<form action="{{ route('payments.store') }}" method="POST">
-			@csrf
-			<div class="mb-4">
-				<label class="mb-2 block text-sm font-bold text-gray-700" for="invoice_id">
-					Faktur
-				</label>
-				<select name="invoice_id" id="invoice_id"
-					class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-					required>
-					<option value="">Pilih Faktur</option>
-					@foreach ($invoices as $invoice)
-						<option value="{{ $invoice->id }}">{{ $invoice->order->customer->name }} - {{ $invoice->issue_date }}</option>
-					@endforeach
-				</select>
-			</div>
-			<div class="mb-4">
-				<label class="mb-2 block text-sm font-bold text-gray-700" for="payment_date">
-					Tanggal Pembayaran
-				</label>
-				<input type="date" name="payment_date" id="payment_date"
-					class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-					required>
-			</div>
-			<div class="mb-4">
-				<label class="mb-2 block text-sm font-bold text-gray-700" for="amount">
-					Jumlah
-				</label>
-				<input type="number" step="0.01" name="amount" id="amount"
-					class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-					required>
-			</div>
-			<div class="mb-4">
-				<label class="mb-2 block text-sm font-bold text-gray-700" for="payment_method">
-					Metode Pembayaran
-				</label>
-				<input type="text" name="payment_method" id="payment_method"
-					class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-					required>
-			</div>
-			<div class="flex items-center justify-between">
-				<button type="submit"
-					class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none">
-					Simpan
-				</button>
-			</div>
-		</form>
-	</div>
+    <div class="container mx-auto p-6 space-y-6">
+        <h1 class="text-3xl font-bold text-gray-800">Pembayaran untuk Pesanan #{{ $order->id }}</h1>
+
+        <form method="POST" action="{{ route('payments.store') }}" class="bg-white shadow sm:rounded-lg p-6 space-y-6">
+            @csrf
+            <input type="hidden" name="order_id" value="{{ $order->id }}">
+
+            <div>
+                <label for="amount_paid" class="block text-sm font-medium text-gray-700">Jumlah Dibayar</label>
+                <input type="number" name="amount_paid" id="amount_paid" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+            </div>
+
+            <div>
+                <label for="payment_method" class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
+                <select name="payment_method" id="payment_method" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    <option value="cash">Tunai</option>
+                    <option value="credit_card">Kartu Kredit</option>
+                    <option value="bank_transfer">Transfer Bank</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="payment_type" class="block text-sm font-medium text-gray-700">Jenis Pembayaran</label>
+                <select name="payment_type" id="payment_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    <option value="full">Pembayaran Penuh</option>
+                    <option value="partial">Pembayaran Parsial</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <a href="{{ route('orders.show', $order->id) }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center">
+                    <i data-lucide="arrow-left" class="inline-block w-5 h-5 mr-2"></i> Kembali ke Pesanan
+                </a>
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center">
+                    <i data-lucide="check-circle" class="inline-block w-5 h-5 mr-2"></i> Simpan Pembayaran
+                </button>
+            </div>
+        </form>
+    </div>
 </x-app-layout>

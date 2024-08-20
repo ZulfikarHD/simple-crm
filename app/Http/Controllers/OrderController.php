@@ -7,6 +7,8 @@ use App\Models\Inventory;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\Payment;
+use DB;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -89,6 +91,15 @@ class OrderController extends Controller
             'total_amount' => $totalAmount,
         ]);
 
+        Invoice::create([
+            'order_id' => $order->id,
+            'invoice_number' => 'INV-' . strtoupper(uniqid()), // Unique invoice number
+            'amount' => $totalAmount,
+            'issue_date'   => now(),
+            'due_date'     => $order->service_date,
+            'status' => 'unpaid', // Initial status
+        ]);
+
         // Attach items to the order
         foreach ($validatedData['item_id'] as $index => $itemId) {
             $quantity = $validatedData['item_quantity'][$index];
@@ -109,7 +120,6 @@ class OrderController extends Controller
 
             return redirect()->route('orders.index')->with('success', 'Pesanan berhasil disimpan.');
         }
-
     }
 
 
@@ -128,52 +138,48 @@ class OrderController extends Controller
     {
         $validatedData = $request->validate([
             'order_id' => 'required|exists:orders,id',
-            'amount_paid' => 'required|numeric|min:0',
+            'payment_amount' => 'required|numeric|min:0',
             'payment_method' => 'required|string',
+            'payment_type' => 'required|in:partial,full',
         ]);
 
         DB::transaction(function () use ($validatedData) {
-            $order = Order::findOrFail($validatedData['order_id']);
+            // Retrieve the order and associated invoice
+            $order = Order::with('invoice')->findOrFail($validatedData['order_id']);
+            $invoice = $order->invoice;
 
-            // Record the payment
+            // Calculate the new total paid including this payment
+            $totalPaid = $order->payments->sum('amount') + $validatedData['payment_amount'];
+
+            // Create the payment record
             Payment::create([
                 'order_id' => $order->id,
-                'amount_paid' => $validatedData['amount_paid'],
+                'amount' => $validatedData['payment_amount'],
                 'payment_method' => $validatedData['payment_method'],
-                'payment_date' => now(),
+                'payment_date'   => now(),
             ]);
 
-            // Update order status
-            $totalPaid = $order->payments->sum('amount_paid') + $validatedData['amount_paid'];
+            // Update the invoice
+            $invoice->amount += $validatedData['payment_amount'];
+            if ($invoice->amount >= $invoice->total_amount) {
+                $invoice->status = 'paid';
+            } elseif ($invoice->amount > 0) {
+                $invoice->status = 'partially_paid';
+            }
+            $invoice->save();
+
+            // Update the order status
             if ($totalPaid >= $order->total_amount) {
-                $order->update(['status' => 'fully_paid']);
+                $order->status = 'fully_paid';
             } elseif ($totalPaid > 0) {
-                $order->update(['status' => 'partially_paid']);
+                $order->status = 'partially_paid';
             }
-
-            // Generate an invoice
-            $invoice = Invoice::create([
-                'order_id' => $order->id,
-                'invoice_number' => $this->generateInvoiceNumber(),
-                'issue_date' => now(),
-                'total_amount' => $order->total_amount,
-                'status' => $totalPaid >= $order->total_amount ? 'paid' : 'partially_paid',
-            ]);
-
-            // Add invoice items
-            foreach ($order->inventories as $inventory) {
-                $invoice->invoiceItems()->create([
-                    'description' => $inventory->item_name,
-                    'quantity' => $inventory->pivot->quantity_used,
-                    'price_per_unit' => $inventory->pivot->price_per_unit,
-                    'total_price' => $inventory->pivot->total_price,
-                ]);
-            }
+            $order->save();
         });
 
-        session()->forget('order_id'); // Clear session after payment
-        return redirect()->route('orders.index')->with('success', 'Pesanan dan pembayaran berhasil disimpan.');
+        return redirect()->route('orders.index')->with('success', 'Pembayaran berhasil disimpan, status pesanan diperbarui, dan invoice diperbarui.');
     }
+
 
 
     public function show(Order $order)

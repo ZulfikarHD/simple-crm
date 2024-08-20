@@ -63,6 +63,11 @@
                                         {{ __('Kelola Pembayaran') }}
                                     </x-nav-link>
                                 </li>
+                                <li>
+                                    <x-nav-link href="{{ route('payments.create') }}" :active="request()->routeIs('payments.create')">
+                                        {{ __('Buat Pembayaran') }}
+                                    </x-nav-link>
+                                </li>
                             </ul>
                         </li>
 

@@ -1,122 +1,93 @@
 <x-app-layout>
     <div class="container mx-auto p-6 space-y-6">
-        <h1 class="text-3xl font-bold text-gray-800">Buat Pesanan Baru - Langkah 2</h1>
+        <h1 class="text-3xl font-bold text-gray-800">Pembayaran untuk Pesanan #{{ $order->id }}</h1>
 
-        <!-- Order Summary -->
+        <!-- Invoice Summary -->
         <div class="bg-white shadow sm:rounded-lg p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">Ringkasan Pesanan</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Ringkasan Invoice</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Customer Information -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Nama Pelanggan</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $order->customer->name }}</p>
+                    <label class="block text-sm font-medium text-gray-700">Nomor Invoice</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ $order->invoice->invoice_number }}</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $order->customer->email }}</p>
+                    <label class="block text-sm font-medium text-gray-700">Status Invoice</label>
+                    <p class="mt-1 text-sm">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $order->invoice->status === 'paid' ? 'bg-green-100 text-green-800' : ($order->invoice->status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                            {{ ucfirst($order->invoice->status) }}
+                        </span>
+                    </p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $order->customer->phone }}</p>
+                    <label class="block text-sm font-medium text-gray-700">Total Invoice</label>
+                    <p class="mt-1 text-sm text-gray-900">Rp {{ number_format($order->invoice->total_amount, 2) }}</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Tanggal Layanan</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ \Carbon\Carbon::parse($order->service_date)->format('d M Y') }}</p>
+                    <label class="block text-sm font-medium text-gray-700">Total Dibayar</label>
+                    <p class="mt-1 text-sm text-gray-900">Rp {{ number_format($order->invoice->amount_paid, 2) }}</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Subtotal</label>
-                    <p class="mt-1 text-sm text-gray-900">Rp {{ number_format($order->subtotal, 2) }}</p>
+                    <label class="block text-sm font-medium text-gray-700">Sisa Tagihan</label>
+                    <p class="mt-1 text-sm text-gray-900">Rp {{ number_format($order->invoice->total_amount - $order->invoice->amount_paid, 2) }}</p>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Total</label>
-                    <p class="mt-1 text-sm text-gray-900">Rp {{ number_format($order->total_amount, 2) }}</p>
-                </div>
-            </div>
-
-            <!-- Collapsible Order Items -->
-            <div x-data="{ open: false }" class="mt-6">
-                <button @click="open = !open" class="text-blue-500 hover:underline flex items-center">
-                    <i :class="open ? 'transform rotate-180' : ''" data-lucide="chevron-down" class="mr-2"></i> Lihat Item dalam Pesanan
-                </button>
-                <ul x-show="open" class="mt-4 space-y-2">
-                    @foreach ($order->inventories as $item)
-                        <li class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">{{ $item->item_name }}</p>
-                                <p class="text-sm text-gray-500">Kuantitas: {{ $item->pivot->quantity_used }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-900">Rp {{ number_format($item->pivot->total_price, 2) }}</p>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
             </div>
         </div>
 
-        <!-- Form Step 2: Payment Details -->
-        <form method="POST" action="{{ route('orders.store-payment') }}" class="bg-white shadow sm:rounded-lg p-6 space-y-6" x-data="{
-                paymentType: 'full',
-                amountPaid: 0,
-                percentagePaid: 0,
-                totalAmount: '{{ $order->total_amount }}',
-                updateAmount() {
-                    this.amountPaid = (this.percentagePaid / 100) * this.totalAmount;
-                },
-                updatePercentage() {
-                    this.percentagePaid = (this.amountPaid / this.totalAmount) * 100;
-                }
-            }">
+        <!-- Payment Form with Dynamic Partial/Full Payment -->
+        <form method="POST" action="{{ route('orders.store-payment') }}" class="bg-white shadow sm:rounded-lg p-6 space-y-6">
             @csrf
-
             <input type="hidden" name="order_id" value="{{ $order->id }}">
 
-            <!-- Payment Type Selection -->
-            <div>
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Jenis Pembayaran</h2>
-                <div class="flex items-center space-x-4">
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="payment_type" value="full" x-model="paymentType" checked>
-                        <span class="ml-2">Pembayaran Penuh</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="payment_type" value="partial" x-model="paymentType">
-                        <span class="ml-2">Pembayaran Parsial</span>
-                    </label>
+            <div x-data="{
+                paymentType: 'full',
+                totalAmount: {{ $order->invoice->total_amount - $order->invoice->amount_paid }},
+                partialAmount: 0,
+                percentage: 0,
+                updatePercentage() {
+                    this.percentage = (this.partialAmount / this.totalAmount) * 100;
+                },
+                updatePartialAmount() {
+                    this.partialAmount = (this.percentage / 100) * this.totalAmount;
+                }
+            }">
+                <label for="payment_type" class="block text-sm font-medium text-gray-700">Jenis Pembayaran</label>
+                <select name="payment_type" id="payment_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" x-model="paymentType" required>
+                    <option value="full">Pembayaran Penuh</option>
+                    <option value="partial">Pembayaran Parsial</option>
+                </select>
+
+                <!-- Full Payment -->
+                <div x-show="paymentType === 'full'" class="mt-4">
+                    <label for="payment_amount_full" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran Penuh</label>
+                    <input type="number" name="payment_amount" id="payment_amount_full" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" :value="totalAmount" readonly>
+                </div>
+
+                <!-- Partial Payment -->
+                <div x-show="paymentType === 'partial'" x-cloak class="mt-4">
+                    <label for="partial_payment_amount" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran Parsial</label>
+                    <input type="number" name="payment_amount" id="partial_payment_amount" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" x-model="partialAmount" @input="updatePercentage" placeholder="Masukkan jumlah pembayaran">
+
+                    <label for="payment_percentage" class="block text-sm font-medium text-gray-700 mt-4">Persentase Pembayaran (%)</label>
+                    <input type="number" id="payment_percentage" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" x-model="percentage" @input="updatePartialAmount" placeholder="Masukkan persentase pembayaran">
                 </div>
             </div>
 
-            <!-- Payment Information -->
-            <div>
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Pembayaran</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="amount_paid" class="block text-sm font-medium text-gray-700">Jumlah Dibayar</label>
-                        <input type="number" name="amount_paid" id="amount_paid" x-model="amountPaid" @input="updatePercentage" :disabled="paymentType === 'full'" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-                    </div>
-                    <div x-show="paymentType === 'partial'">
-                        <label for="percentage_paid" class="block text-sm font-medium text-gray-700">Persentase yang Dibayar (%)</label>
-                        <input type="number" x-model="percentagePaid" @input="updateAmount" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="payment_method" class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
-                        <select name="payment_method" id="payment_method" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-                            <option value="cash">Tunai</option>
-                            <option value="credit_card">Kartu Kredit</option>
-                            <option value="bank_transfer">Transfer Bank</option>
-                        </select>
-                    </div>
-                </div>
+            <div class="mt-6">
+                <label for="payment_method" class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
+                <select name="payment_method" id="payment_method" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    <option value="cash">Tunai</option>
+                    <option value="credit_card">Kartu Kredit</option>
+                    <option value="bank_transfer">Transfer Bank</option>
+                </select>
             </div>
 
-            <!-- Actions Section -->
-            <div class="flex justify-end space-x-4">
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center">
-                    <i data-lucide="check-circle" class="inline-block w-5 h-5 mr-2"></i> Selesaikan Pembayaran
-                </button>
-                <a href="{{ route('orders.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center">
-                    <i data-lucide="arrow-left" class="inline-block w-5 h-5 mr-2"></i> Kembali ke Daftar Pesanan
+            <div class="flex justify-end space-x-4 mt-6">
+                <a href="{{ route('orders.show', $order->id) }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center">
+                    <i data-lucide="arrow-left" class="inline-block w-5 h-5 mr-2"></i> Kembali ke Pesanan
                 </a>
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center">
+                    <i data-lucide="check-circle" class="inline-block w-5 h-5 mr-2"></i> Simpan Pembayaran
+                </button>
             </div>
         </form>
     </div>
