@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->references('id')->on('customers')->constrained()->onDelete('cascade');
-            $table->date('service_date');
-            $table->enum('status', ['pending', 'partially_paid', 'fully_paid'])->default('pending');
-            $table->decimal('subtotal', 10, 2);
-            $table->decimal('total_amount', 10, 2);
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->date('order_date')->nullable();
+            $table->date('date_end');
+            $table->decimal('discount', 5, 2)->default(0); // Percentage discount for the entire order
+            $table->decimal('tax', 5, 2)->default(10); // Percentage tax for the entire order
+            $table->enum('status', ['pending', 'completed', 'canceled'])->default('pending');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

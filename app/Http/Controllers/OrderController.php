@@ -7,14 +7,10 @@ use App\Models\Inventory;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\StockMovement;
 use DB;
 use Illuminate\Http\Request;
 
-/**
- * Class OrderController
- * Handles the management of orders, including creating, updating, and deleting orders,
- * as well as processing payments and generating invoices.
- */
 class OrderController extends Controller
 {
     /**
@@ -40,7 +36,7 @@ class OrderController extends Controller
         }
 
         // Paginate the results
-        $orders = $query->paginate(3);
+        $orders = $query->paginate(10);
 
         return view('orders.index', compact('orders'));
     }
@@ -58,12 +54,6 @@ class OrderController extends Controller
         return view('orders.create', compact('customers', 'items'));
     }
 
-    /**
-     * Store a newly created order in storage.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function store(Request $request)
     {
         // Validate the incoming request data
@@ -81,7 +71,7 @@ class OrderController extends Controller
             'tax' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        // If customer_id is not provided, create a new customer
+        // Create or find customer
         if (!$validatedData['customer_id']) {
             $customer = Customer::create([
                 'name' => $validatedData['customer_name'],
@@ -104,7 +94,7 @@ class OrderController extends Controller
         $totalAfterDiscount = $subtotal - ($subtotal * $discount / 100);
         $totalAmount = $totalAfterDiscount + ($totalAfterDiscount * $tax / 100);
 
-        // Create the order without saving payment
+        // Create the order
         $order = Order::create([
             'customer_id' => $validatedData['customer_id'],
             'service_date' => $validatedData['service_date'],
@@ -118,19 +108,29 @@ class OrderController extends Controller
             'order_id' => $order->id,
             'invoice_number' => 'INV-' . strtoupper(uniqid()), // Unique invoice number
             'total_amount' => $totalAmount,
-            'issue_date'   => now(),
-            'due_date'     => $order->service_date,
+            'issue_date' => now(),
+            'due_date' => $order->service_date,
             'status' => 'unpaid', // Initial status
         ]);
 
-        // Attach items to the order
+        // Attach items to the order and create stock movements
         foreach ($validatedData['item_id'] as $index => $itemId) {
             $quantity = $validatedData['item_quantity'][$index];
             $item = Inventory::findOrFail($itemId);
-            $order->inventories()->attach($itemId, [
+
+            // Attach inventory to order
+            $order->inventory()->attach($itemId, [
                 'quantity_used' => $quantity,
                 'price_per_unit' => $item->unit_price,
                 'total_price' => $item->unit_price * $quantity,
+            ]);
+
+            // Create stock movement
+            StockMovement::create([
+                'inventory_id' => $itemId,
+                'order_id' => $order->id,
+                'quantity_change' => -$quantity, // Decrease stock
+                'movement_type' => 'outbound', // Adjust as needed
             ]);
         }
 
@@ -165,6 +165,7 @@ class OrderController extends Controller
         $inventoryItems = Inventory::all();
         return view('orders.edit', compact('order', 'customers', 'inventoryItems'));
     }
+
     /**
      * Update the specified order in storage.
      *
@@ -174,7 +175,6 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        // Validate the request data
         $validatedData = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'service_date' => 'required|date',
@@ -226,26 +226,7 @@ class OrderController extends Controller
 
         // Handle payment processing if requested
         if ($request->process_payment && $request->payment_amount > 0) {
-            $totalPaid = $order->payments->sum('amount_paid') + $request->payment_amount;
-            $status = $totalPaid >= $totalAmount ? 'fully_paid' : 'partially_paid';
-
-            // Create or update the payment record
-            $order->payments()->create([
-                'amount_paid' => $request->payment_amount,
-                'payment_date' => now(),
-                'payment_method' => 'cash', // Adjust as needed
-                'status' => $status,
-            ]);
-
-            // Update the order status
-            $order->update(['status' => $status]);
-
-            // Update the associated invoice
-            $invoice = $order->invoice;
-            $invoice->update([
-                'amount_paid' => $totalPaid,
-                'status' => $totalPaid >= $invoice->total_amount ? 'paid' : 'partially_paid',
-            ]);
+            return redirect()->route('payments.create', ['orderId' => $order->id]);
         }
 
         return redirect()->route('orders.index')->with('success', 'Order updated successfully.');

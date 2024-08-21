@@ -13,9 +13,16 @@ class Invoice extends Model
     protected $table = "invoices";
 
     protected $fillable = [
-        'invoice_number', 'order_id', 'issue_date', 'due_date', 'total_amount', 'status', 'amount_paid'
+        'order_id',
+        'invoice_number',
+        'total_amount',
+        'amount_paid',
+        'issue_date',
+        'due_date',
+        'status'
     ];
 
+    // Relationships
     public function order() : BelongsTo
     {
         return $this->belongsTo(Order::class);
@@ -23,6 +30,6 @@ class Invoice extends Model
 
     public function payments() : HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Payment::class, 'order_id', 'order_id');
     }
 }

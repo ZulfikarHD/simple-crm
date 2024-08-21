@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->string('invoice_number')->unique();
-            $table->date('issue_date');
-            $table->date('due_date')->nullable();
             $table->decimal('total_amount', 15, 2);
-            $table->decimal('amount_paid', 15, 2)->default(0); // Previously amount_paid
+            $table->decimal('amount_paid', 15, 2)->default(0);
+            $table->date('issue_date');
+            $table->date('due_date');
             $table->enum('status', ['unpaid', 'partially_paid', 'paid'])->default('unpaid');
             $table->timestamps();
         });

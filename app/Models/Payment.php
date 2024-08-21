@@ -12,10 +12,21 @@ class Payment extends Model
     use HasFactory;
     protected $table = 'payments';
 
-    protected $fillable = ['order_id', 'amount_paid', 'payment_date', 'payment_method'];
+    protected $fillable = [
+        'order_id',
+        'amount_paid',
+        'payment_method',
+        'payment_date'
+    ];
 
-    public function order()
+    // Relationships
+    public function order() : BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function invoice() : BelongsTo
+    {
+        return $this->belongsTo(Invoice::class, 'order_id', 'order_id');
     }
 }

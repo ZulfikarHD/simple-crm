@@ -49,7 +49,7 @@ class InvoiceController extends Controller
             'order_id' => 'required|exists:orders,id',
             'issue_date' => 'required|date',
             'due_date' => 'required|date',
-            'amount' => 'required|numeric',
+            'total_amount' => 'required|numeric',
             'status' => 'required|string|max:255',
         ]);
 
@@ -77,7 +77,7 @@ class InvoiceController extends Controller
             'order_id' => 'required|exists:orders,id',
             'issue_date' => 'required|date',
             'due_date' => 'required|date',
-            'amount' => 'required|numeric',
+            'total_amount' => 'required|numeric',
             'status' => 'required|string|max:255',
         ]);
 

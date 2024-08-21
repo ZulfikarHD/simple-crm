@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory', function (Blueprint $table) {
+        Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
-            $table->string('item_name');
-            $table->decimal('unit_price', 8, 2);
-            $table->string('description')->nullable();
+            $table->foreignId('inventory_id')->constrained('inventory')->onDelete('cascade');
+            $table->integer('quantity_change'); // Positive for additions, negative for deductions
+            $table->string('movement_type'); // E.g., 'purchase', 'sale', 'adjustment'
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventory');
+        Schema::dropIfExists('stock_movements');
     }
 };

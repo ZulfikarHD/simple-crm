@@ -13,18 +13,25 @@ class Inventory extends Model
     // Specify the table name if it's not the plural form of the model name
     protected $table = 'inventory';
 
-    // Allow mass assignment on these attributes
     protected $fillable = [
         'item_name',
-        'quantity',
         'unit_price',
+        'description',
     ];
 
-
-    public function orders()
+    /**
+     * Relationship to StockMovements.
+     */
+    public function stockMovements() : HasMany
     {
-        return $this->belongsToMany(Order::class, 'order_inventory')
-                    ->withPivot('quantity_used', 'price_per_unit', 'discount', 'tax_rate', 'total_price')
-                    ->withTimestamps();
+        return $this->hasMany(StockMovement::class);
+    }
+
+    /**
+     * Calculate current stock based on stock movements.
+     */
+    public function currentStock()
+    {
+        return $this->stockMovements()->sum('quantity_change');
     }
 }

@@ -15,29 +15,32 @@ class Order extends Model
     protected $table = 'orders';
 
     protected $fillable = [
-        'customer_id', 'service_date', 'status', 'notes', 'subtotal', 'total_amount'
+        'customer_id',
+        'service_date',
+        'subtotal',
+        'total_amount',
+        'status',
+        'notes'
     ];
 
-
-    public function customer() : BelongsTo
+    // Relationships
+    public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
-    public function inventories()
+    public function inventory()
     {
-        return $this->belongsToMany(Inventory::class, 'order_inventory')
-                    ->withPivot('quantity_used', 'price_per_unit', 'discount', 'tax_rate', 'total_price')
-                    ->withTimestamps();
+        return $this->belongsToMany(Inventory::class)->withPivot('quantity_used', 'price_per_unit', 'total_price');
     }
 
-    public function payments() : HasMany
-    {
-        return $this->hasMany(Payment::class);
-    }
-
-    public function invoice() : HasOne
+    public function invoice(): HasOne
     {
         return $this->hasOne(Invoice::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 }
