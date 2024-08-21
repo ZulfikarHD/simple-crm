@@ -46,23 +46,16 @@ class OrderController extends Controller
     }
 
     /**
-     * Show the form for creating a new order.
-     *
-     * @return void
-     */
-    public function create() {}
-
-    /**
      * Show the form for creating a new order with customer and item data.
      *
      * @return \Illuminate\View\View
      */
-    public function createOrder()
+    public function create()
     {
         $customers = Customer::all();
         $items = Inventory::all();
 
-        return view('orders.create-order', compact('customers', 'items'));
+        return view('orders.create', compact('customers', 'items'));
     }
 
     /**
@@ -71,7 +64,7 @@ class OrderController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function storeOrder(Request $request)
+    public function store(Request $request)
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
@@ -81,7 +74,7 @@ class OrderController extends Controller
             'customer_phone' => 'required_without:customer_id|string|max:20',
             'service_date' => 'required|date',
             'item_id' => 'required|array',
-            'item_id.*' => 'required|exists:inventories,id', // Validate each item against the 'inventories' table
+            'item_id.*' => 'required|exists:inventory,id',
             'item_quantity' => 'required|array',
             'item_quantity.*' => 'required|integer|min:1',
             'discount' => 'nullable|numeric|min:0|max:100',
@@ -143,88 +136,10 @@ class OrderController extends Controller
 
         // Redirect based on user action
         if ($request->input('action') === 'save_and_pay') {
-            // Save the order ID in the session to pass it to the payment step
-            session(['order_id' => $order->id]);
-            return redirect()->route('orders.create-payment');
+            return redirect()->route('payments.create', ['orderId' => $order->id]);
         } else {
             return redirect()->route('orders.index')->with('success', 'Pesanan berhasil disimpan.');
         }
-    }
-
-    /**
-     * Show the payment form for a specific order.
-     *
-     * @param Request $request
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
-     */
-    public function createPayment(Request $request)
-    {
-        $orderId = session('order_id');
-        if (!$orderId) {
-            return redirect()->route('orders.index')->with('error', 'Tidak ada pesanan untuk pembayaran.');
-        }
-
-        $order = Order::findOrFail($orderId);
-        return view('orders.create-payment', compact('order'));
-    }
-
-    /**
-     * Store a newly created payment in storage.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function storePayment(Request $request)
-    {
-        // Validate the incoming request data
-        $validatedData = $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'payment_amount' => 'required|numeric|min:0',
-            'payment_method' => 'required|string',
-            'payment_type' => 'required|in:partial,full',
-            'payment_amount_full' => 'nullable|numeric|min:0'
-        ]);
-
-        // Use a database transaction to ensure data integrity
-        DB::transaction(function () use ($validatedData) {
-            // Retrieve the order and associated invoice
-            $order = Order::with('invoice')->findOrFail($validatedData['order_id']);
-            $invoice = $order->invoice;
-
-            // Calculate the new total paid including this payment
-            if($validatedData['payment_type'] === 'full'){
-                $totalPaid = $validatedData['payment_amount_full'] - $order->payments->sum('amount');
-            } else {
-                $totalPaid = $order->payments->sum('amount') + $validatedData['payment_amount'];
-            }
-
-            // Create the payment record
-            Payment::create([
-                'order_id' => $order->id,
-                'amount_paid' => $totalPaid,
-                'payment_method' => $validatedData['payment_method'],
-                'payment_date'   => now(),
-            ]);
-
-            // Update the invoice
-            $invoice->amount += $validatedData['payment_amount'];
-            if ($invoice->amount >= $invoice->total_amount) {
-                $invoice->status = 'paid';
-            } elseif ($invoice->amount > 0) {
-                $invoice->status = 'partially_paid';
-            }
-            $invoice->save();
-
-            // Update the order status
-            if ($totalPaid >= $order->total_amount) {
-                $order->status = 'fully_paid';
-            } elseif ($totalPaid > 0) {
-                $order->status = 'partially_paid';
-            }
-            $order->save();
-        });
-
-        return redirect()->route('orders.index')->with('success', 'Pembayaran berhasil disimpan, status pesanan diperbarui, dan invoice diperbarui.');
     }
 
     /**
@@ -250,7 +165,6 @@ class OrderController extends Controller
         $inventoryItems = Inventory::all();
         return view('orders.edit', compact('order', 'customers', 'inventoryItems'));
     }
-
     /**
      * Update the specified order in storage.
      *
@@ -260,73 +174,77 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        // Validate the request
-        $request->validate([
+        // Validate the request data
+        $validatedData = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'service_date' => 'required|date',
-            'items' => 'required|array|min:1',
-            'items.*.inventory_id' => 'required|exists:inventories,id',
-            'items.*.quantity_used' => 'required|integer|min:1',
-            'items.*.discount' => 'nullable|numeric|min:0',
-            'items.*.tax_rate' => 'nullable|numeric|min:0|max:100',
+            'item_id' => 'required|array|min:1',
+            'item_id.*' => 'required|exists:inventory,id',
+            'item_quantity' => 'required|array|min:1',
+            'item_quantity.*' => 'required|integer|min:1',
+            'discount' => 'nullable|numeric|min:0|max:100',
+            'tax' => 'nullable|numeric|min:0|max:100',
             'notes' => 'nullable|string',
-            'payment_amount' => 'nullable|numeric|min:0',
             'process_payment' => 'sometimes|boolean',
+            'payment_amount' => 'nullable|numeric|min:0',
         ]);
 
         // Calculate the total order amount
-        $totalOrderAmount = 0;
-        foreach ($request->items as $item) {
-            $inventoryItem = Inventory::find($item['inventory_id']);
-            $priceBeforeTax = $inventoryItem->unit_price * $item['quantity_used'];
-            $totalPrice = $priceBeforeTax - ($item['discount'] ?? 0) + ($priceBeforeTax * (($item['tax_rate'] ?? 0) / 100));
-            $totalOrderAmount += $totalPrice;
+        $subtotal = 0;
+        foreach ($validatedData['item_id'] as $index => $itemId) {
+            $item = Inventory::findOrFail($itemId);
+            $quantity = $validatedData['item_quantity'][$index];
+            $subtotal += $item->unit_price * $quantity;
         }
 
-        // Determine the order status based on the payment amount
-        $status = 'pending';
-        if ($request->process_payment) {
-            if ($request->payment_amount >= $totalOrderAmount) {
-                $status = 'fully_paid';
-            } elseif ($request->payment_amount > 0) {
-                $status = 'partially_paid';
-            }
-        }
+        $discount = $validatedData['discount'] ?? 0;
+        $tax = $validatedData['tax'] ?? 11; // Default tax if not provided
+        $totalAfterDiscount = $subtotal - ($subtotal * $discount / 100);
+        $totalAmount = $totalAfterDiscount + ($totalAfterDiscount * $tax / 100);
 
         // Update the order
         $order->update([
-            'customer_id' => $request->customer_id,
-            'service_date' => $request->service_date,
-            'notes' => $request->notes,
-            'status' => $status,
-            'total_amount' => $totalOrderAmount,
+            'customer_id' => $validatedData['customer_id'],
+            'service_date' => $validatedData['service_date'],
+            'notes' => $validatedData['notes'],
+            'subtotal' => $subtotal,
+            'total_amount' => $totalAmount,
+            'status' => 'pending', // Reset status
         ]);
 
         // Sync items with the order
-        $order->inventories()->detach();
-        foreach ($request->items as $item) {
-            $inventoryItem = Inventory::find($item['inventory_id']);
-            $priceBeforeTax = $inventoryItem->unit_price * $item['quantity_used'];
-            $totalPrice = $priceBeforeTax - ($item['discount'] ?? 0) + ($priceBeforeTax * (($item['tax_rate'] ?? 0) / 100));
-
-            $order->inventories()->attach($inventoryItem->id, [
-                'quantity_used' => $item['quantity_used'],
-                'price_per_unit' => $inventoryItem->unit_price,
-                'discount' => $item['discount'] ?? 0,
-                'tax_rate' => $item['tax_rate'] ?? 0,
-                'total_price' => $totalPrice,
-                'created_at' => now(),
-                'updated_at' => now(),
+        $order->inventories()->sync([]);
+        foreach ($validatedData['item_id'] as $index => $itemId) {
+            $quantity = $validatedData['item_quantity'][$index];
+            $item = Inventory::findOrFail($itemId);
+            $order->inventories()->attach($itemId, [
+                'quantity_used' => $quantity,
+                'price_per_unit' => $item->unit_price,
+                'total_price' => $item->unit_price * $quantity,
             ]);
         }
 
-        // Update or add payment if it was made
+        // Handle payment processing if requested
         if ($request->process_payment && $request->payment_amount > 0) {
+            $totalPaid = $order->payments->sum('amount_paid') + $request->payment_amount;
+            $status = $totalPaid >= $totalAmount ? 'fully_paid' : 'partially_paid';
+
+            // Create or update the payment record
             $order->payments()->create([
-                'amount' => $request->payment_amount,
+                'amount_paid' => $request->payment_amount,
                 'payment_date' => now(),
                 'payment_method' => 'cash', // Adjust as needed
-                'status' => $status == 'fully_paid' ? 'completed' : 'partial',
+                'status' => $status,
+            ]);
+
+            // Update the order status
+            $order->update(['status' => $status]);
+
+            // Update the associated invoice
+            $invoice = $order->invoice;
+            $invoice->update([
+                'amount_paid' => $totalPaid,
+                'status' => $totalPaid >= $invoice->total_amount ? 'paid' : 'partially_paid',
             ]);
         }
 

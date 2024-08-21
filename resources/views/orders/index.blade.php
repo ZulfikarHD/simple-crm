@@ -3,7 +3,7 @@
     <div class="container mx-auto p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Daftar Pesanan</h1>
-            <a href="{{ route('orders.create-order') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center">
+            <a href="{{ route('orders.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center">
                 <i data-lucide="plus" class="mr-2"></i> Buat Pesanan Baru
             </a>
         </div>
@@ -22,8 +22,8 @@
         </div>
 
         <!-- Order Table -->
-        <div class="rounded-lg bg-white p-6 shadow-lg">
-            <table class="min-w-full divide-y divide-gray-200">
+        <div class="rounded-lg bg-white shadow-lg overflow-auto">
+            <table class="min-w-full divide-y divide-gray-200 relative">
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Pesanan</th>

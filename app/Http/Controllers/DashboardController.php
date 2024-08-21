@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function index()
     {
         // Key Metrics
-        $totalSales = Invoice::where('status', 'paid')->sum('amount');
+        $totalSales = Invoice::where('status', 'paid')->sum('amount_paid');
         $activeOrders = Order::where('status', 'active')->count();
         $customerSatisfaction = $this->calculateCustomerSatisfaction();
         $lowStockItems = Inventory::where('quantity', '<=', 10)->count();
@@ -55,7 +55,7 @@ class DashboardController extends Controller
         $salesData = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i)->format('Y-m-d');
-            $salesData[] = Invoice::whereDate('created_at', $date)->sum('amount');
+            $salesData[] = Invoice::whereDate('created_at', $date)->sum('amount_paid');
         }
         return $salesData;
     }

@@ -27,7 +27,7 @@
                             </button>
                             <ul x-show="open" x-transition class="mt-2 space-y-2 pl-6">
                                 <li>
-                                    <x-nav-link href="{{ route('orders.create-order') }}" :active="request()->routeIs('orders.create-order')">
+                                    <x-nav-link href="{{ route('orders.create') }}" :active="request()->routeIs('orders.create')">
                                         {{ __('Buat Pesanan') }}
                                     </x-nav-link>
                                 </li>
@@ -54,7 +54,7 @@
                                     </x-nav-link>
                                 </li> --}}
                                 <li>
-                                    <x-nav-link href="{{ route('payments.create') }}" :active="request()->routeIs('payments.create')">
+                                    <x-nav-link href="{{ route('payments.index') }}" :active="request()->routeIs('payments.create')">
                                         {{ __('Pembayaran') }}
                                     </x-nav-link>
                                 </li>

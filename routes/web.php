@@ -69,10 +69,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/user-roles',[UserRoleController::class, 'index'])->name('user-roles.index');
     Route::get('/business-management', [BusinessController::class, 'index'])->name('business-management.index');
 
-    Route::get('/orders/create', [OrderController::class, 'createOrder'])->name('orders.create-order');
-    Route::post('/orders/create', [OrderController::class, 'storeOrder'])->name('orders.store-order');
-    Route::get('/orders/create/payment', [OrderController::class, 'createPayment'])->name('orders.create-payment');
-    Route::post('/orders/create/payment', [OrderController::class, 'storePayment'])->name('orders.store-payment');
+    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::post('/orders/create', [OrderController::class, 'store'])->name('orders.store');
+
+    Route::get('/payment/create/{orderId}',[PaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payment/create',[PaymentController::class, 'store'])->name('payments.store');
 
 });
 
