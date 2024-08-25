@@ -17,21 +17,16 @@ class Inventory extends Model
         'item_name',
         'unit_price',
         'description',
+        'category',
     ];
 
-    /**
-     * Relationship to StockMovements.
-     */
-    public function stockMovements() : HasMany
+    public function stockMovements()
     {
         return $this->hasMany(StockMovement::class);
     }
 
-    /**
-     * Calculate current stock based on stock movements.
-     */
-    public function currentStock()
+    public function getCurrentStockAttribute()
     {
-        return $this->stockMovements()->sum('quantity_change');
+        return $this->stockMovements()->sum('quantity');
     }
 }

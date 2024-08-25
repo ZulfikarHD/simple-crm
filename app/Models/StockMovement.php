@@ -10,7 +10,11 @@ class StockMovement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'inventory_id', 'quantity_change', 'movement_type',
+        'inventory_id',
+        'quantity',
+        'movement_type', // 'in' for stock additions, 'out' for stock deductions
+        'description',
+        'movement_date',
     ];
 
     public function inventory()

@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inventory_id')->constrained('inventory')->onDelete('cascade');
-            $table->integer('quantity_change'); // Positive for additions, negative for deductions
-            $table->string('movement_type'); // E.g., 'purchase', 'sale', 'adjustment'
+            $table->integer('quantity');
+            $table->enum('movement_type', ['in', 'out']);
+            $table->text('description')->nullable();
+            $table->timestamp('movement_date')->useCurrent();
             $table->timestamps();
         });
     }

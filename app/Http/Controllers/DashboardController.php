@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Invoice;
 use App\Models\Customer;
 use App\Models\Inventory;
+use App\Models\StockMovement;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -17,7 +18,7 @@ class DashboardController extends Controller
         $totalSales = Invoice::where('status', 'paid')->sum('amount_paid');
         $activeOrders = Order::where('status', 'active')->count();
         $customerSatisfaction = $this->calculateCustomerSatisfaction();
-        $lowStockItems = Inventory::where('quantity', '<=', 10)->count();
+        $lowStockItems = $this->getLowStockItemsCount();
 
         // Sales Data for Chart
         $salesData = $this->getSalesData();
@@ -26,6 +27,12 @@ class DashboardController extends Controller
         // Order Status Data for Chart
         $ordersData = $this->getOrdersData();
         $orderStatuses = ['Completed', 'Processing', 'Canceled'];
+
+        // Top Selling Items
+        $topSellingItems = $this->getTopSellingItems();
+
+        // Recurring Customers
+        $recurringCustomers = $this->getRecurringCustomers();
 
         // Recent Activities
         $recentActivities = $this->getRecentActivities();
@@ -39,19 +46,19 @@ class DashboardController extends Controller
             'salesCategories',
             'ordersData',
             'orderStatuses',
+            'topSellingItems',
+            'recurringCustomers',
             'recentActivities'
         ));
     }
 
     private function calculateCustomerSatisfaction()
     {
-        // Placeholder for actual logic
-        return 90; // e.g., percentage based on feedback
+        return 90; // Placeholder logic
     }
 
     private function getSalesData()
     {
-        // Retrieve sales data for the past 7 days
         $salesData = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i)->format('Y-m-d');
@@ -62,7 +69,6 @@ class DashboardController extends Controller
 
     private function getSalesCategories()
     {
-        // Retrieve the date labels for the past 7 days
         $categories = [];
         for ($i = 6; $i >= 0; $i--) {
             $categories[] = Carbon::now()->subDays($i)->format('d M');
@@ -72,17 +78,35 @@ class DashboardController extends Controller
 
     private function getOrdersData()
     {
-        // Count orders by status
-        $completed = Order::where('status', 'completed')->count();
-        $processing = Order::where('status', 'processing')->count();
-        $canceled = Order::where('status', 'canceled')->count();
+        return [
+            Order::where('status', 'completed')->count(),
+            Order::where('status', 'processing')->count(),
+            Order::where('status', 'canceled')->count(),
+        ];
+    }
 
-        return [$completed, $processing, $canceled];
+    private function getLowStockItemsCount()
+    {
+        return Inventory::with('stockMovements')->get()->filter(function ($inventory) {
+            return $inventory->stockMovements->sum('quantity') <= 10;
+        })->count();
+    }
+
+    private function getTopSellingItems()
+    {
+        return Inventory::withSum('stockMovements as total_sold', 'quantity')
+            ->orderBy('total_sold', 'desc')
+            ->take(5)
+            ->get();
+    }
+
+    private function getRecurringCustomers()
+    {
+        return Customer::has('orders', '>', 1)->get();
     }
 
     private function getRecentActivities()
     {
-        // Retrieve the 5 most recent orders, payments, or customer interactions
         return Order::latest()->take(5)->get();
     }
 }
