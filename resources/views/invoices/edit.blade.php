@@ -13,7 +13,7 @@
                 <select name="order_id" id="order_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
                     <option value="">Pilih Pesanan</option>
                     @foreach($orders as $order)
-                        <option value="{{ $order->id }}" @if(old('order_id', $invoice->order_id) == $order->id) selected @endif>{{ $order->customer->name }} - {{ \Carbon\Carbon::parse($order->service_date)->format('d M Y') }}</option>
+                        <option value="{{ $order->id }}" @if(old('order_id', $invoice->order_id) == $order->id) selected @endif>{{ $order->customer->name }} - {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y') }}</option>
                     @endforeach
                 </select>
                 @error('order_id')

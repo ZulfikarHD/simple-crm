@@ -1,15 +1,15 @@
 <x-app-layout>
 	<div class="container mx-auto p-6">
-		<h1 class="mb-6 text-3xl font-bold">Daftar Inventaris</h1>
+		<h1 class="mb-6 text-4xl font-extrabold text-gray-800">Daftar Inventaris</h1>
 
 		<!-- Tombol Tambah Item -->
 		<a href="{{ route('inventory.create') }}"
-			class="focus:shadow-outline mb-6 inline-block rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-700 focus:outline-none">Tambah
+			class="focus:shadow-outline mb-6 inline-block rounded-lg bg-green-600 px-6 py-3 font-bold text-white hover:bg-green-700 transition duration-200">Tambah
 			Item</a>
 
 		<!-- Pesan Sukses -->
 		@if (session('success'))
-			<div class="mb-4 rounded bg-green-500 px-4 py-2 text-white">
+			<div class="mb-4 rounded-lg bg-green-500 px-4 py-2 text-white">
 				{{ session('success') }}
 			</div>
 		@endif
@@ -18,27 +18,27 @@
 		<div class="mb-6 flex items-center justify-between">
 			<form class="flex items-center space-x-2">
 				<input type="text" name="search" placeholder="Cari nama item..."
-					class="rounded-lg border px-4 py-2 focus:ring-2 focus:ring-green-500">
+					class="rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent">
 
-				<select name="sort_by" class="rounded-lg border px-4 py-2 focus:ring-2 focus:ring-green-500">
+				<select name="sort_by" class="rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent">
 					<option value="item_name">Nama Item</option>
 					<option value="quantity">Jumlah</option>
 					<option value="unit_price">Harga Satuan</option>
 				</select>
 
-				<select name="sort_direction" class="rounded-lg border px-4 py-2 focus:ring-2 focus:ring-green-500">
+				<select name="sort_direction" class="rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent">
 					<option value="asc">Naik</option>
 					<option value="desc">Turun</option>
 				</select>
 
-				<button type="submit" class="rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-700">Terapkan</button>
+				<button type="submit" class="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 transition duration-200">Terapkan</button>
 			</form>
 		</div>
 
 		<!-- Tabel Inventaris -->
-		<div class="overflow-x-auto rounded-lg bg-white shadow">
+		<div class="overflow-x-auto rounded-lg bg-white shadow-lg">
 			<table class="min-w-full">
-				<thead class="bg-green-500 text-white">
+				<thead class="bg-green-600 text-white">
 					<tr>
 						<th class="px-4 py-3 text-left">Nama Item</th>
 						<th class="px-4 py-3 text-left">Stock</th>

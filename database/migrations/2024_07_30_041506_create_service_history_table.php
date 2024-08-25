@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->references('id')->on('customers')->constrained()->onDelete('cascade');
             $table->foreignId('order_id')->references('id')->on('orders')->constrained()->onDelete('cascade');
-            $table->date('service_date');
+            $table->date('order_date');
             $table->text('description');
             $table->timestamps();
         });

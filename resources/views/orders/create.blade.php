@@ -1,10 +1,10 @@
 <x-app-layout>
 	<div class="container mx-auto space-y-6 p-6">
 		@if ($errors->any())
-			<div class="alert alert-danger">
+			<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
 				<ul>
 					@foreach ($errors->all() as $error)
-						<li>{{ $error }}</li>
+						<li class="text-sm">{{ $error }}</li>
 					@endforeach
 				</ul>
 			</div>
@@ -62,8 +62,8 @@
 				<h2 class="mb-4 text-lg font-semibold text-gray-800">Informasi Pesanan</h2>
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div>
-						<label for="service_date" class="block text-sm font-medium text-gray-700">Tanggal Layanan</label>
-						<input type="date" name="service_date" id="service_date"
+						<label for="order_date" class="block text-sm font-medium text-gray-700">Tanggal Layanan</label>
+						<input type="date" name="order_date" id="order_date"
 							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
 							required>
 					</div>
@@ -72,7 +72,7 @@
 				<!-- Order Items -->
 				<div x-data="orderForm()" class="mt-4 space-y-4">
 					<template x-for="(item, index) in items" :key="index">
-						<div class="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+						<div class="flex items-center justify-between rounded-lg bg-gray-50 p-4 shadow">
 							<div class="flex-1">
 								<div class="grid grid-cols-2 gap-4">
 									<div>
@@ -144,11 +144,11 @@
 			<div class="flex justify-end space-x-4">
 				<input type="hidden" id="action-input" name="action" value="save_and_pay">
 				<button type="submit" onclick="document.getElementById('action-input').value='save_and_pay';"
-					class="flex items-center rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-600">
+					class="flex items-center rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-600 transition duration-200 ease-in-out">
 					<i data-lucide="arrow-right" class="mr-2 inline-block h-5 w-5"></i> Lanjutkan ke Pembayaran
 				</button>
 				<button type="submit" onclick="document.getElementById('action-input').value='save';"
-					class="flex items-center rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
+					class="flex items-center rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 transition duration-200 ease-in-out">
 					<i data-lucide="save" class="mr-2 inline-block h-5 w-5"></i> Simpan Pesanan
 				</button>
 			</div>

@@ -1,40 +1,40 @@
 <x-app-layout>
     <div class="container mx-auto p-6 space-y-6">
-        <h1 class="text-3xl font-bold text-gray-800">Pembayaran untuk Pesanan #{{ $order->id }}</h1>
+        <h1 class="text-4xl font-extrabold text-gray-900">Pembayaran untuk Pesanan #{{ $order->id }}</h1>
 
         <!-- Invoice Summary -->
-        <div class="bg-white shadow sm:rounded-lg p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">Ringkasan Invoice</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Ringkasan Invoice</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="border p-4 rounded-lg shadow-sm">
                     <label class="block text-sm font-medium text-gray-700">Nomor Invoice</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $order->invoice->invoice_number }}</p>
+                    <p class="mt-1 text-lg text-gray-900 font-semibold">{{ $order->invoice->invoice_number }}</p>
                 </div>
-                <div>
+                <div class="border p-4 rounded-lg shadow-sm">
                     <label class="block text-sm font-medium text-gray-700">Status Invoice</label>
                     <p class="mt-1 text-sm">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $order->invoice->status === 'paid' ? 'bg-green-100 text-green-800' : ($order->invoice->status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                        <span class="px-3 inline-flex text-xs leading-5 font-semibold rounded-full {{ $order->invoice->status === 'paid' ? 'bg-green-200 text-green-800' : ($order->invoice->status === 'partially_paid' ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800') }}">
                             {{ ucfirst($order->invoice->status) }}
                         </span>
                     </p>
                 </div>
-                <div>
+                <div class="border p-4 rounded-lg shadow-sm">
                     <label class="block text-sm font-medium text-gray-700">Total Invoice</label>
-                    <p class="mt-1 text-sm text-gray-900">Rp {{ number_format($order->invoice->total_amount, 2) }}</p>
+                    <p class="mt-1 text-lg text-gray-900 font-semibold">Rp {{ number_format($order->invoice->total_amount, 2) }}</p>
                 </div>
-                <div>
+                <div class="border p-4 rounded-lg shadow-sm">
                     <label class="block text-sm font-medium text-gray-700">Total Dibayar</label>
-                    <p class="mt-1 text-sm text-gray-900">Rp {{ number_format($order->invoice->amount_paid, 2) }}</p>
+                    <p class="mt-1 text-lg text-gray-900 font-semibold">Rp {{ number_format($order->invoice->amount_paid, 2) }}</p>
                 </div>
-                <div>
+                <div class="border p-4 rounded-lg shadow-sm">
                     <label class="block text-sm font-medium text-gray-700">Sisa Tagihan</label>
-                    <p class="mt-1 text-sm text-gray-900">Rp {{ number_format($order->invoice->total_amount - $order->invoice->amount_paid, 2) }}</p>
+                    <p class="mt-1 text-lg text-gray-900 font-semibold">Rp {{ number_format($order->invoice->total_amount - $order->invoice->amount_paid, 2) }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Payment Form with Dynamic Partial/Full Payment -->
-        <form method="POST" action="{{ route('payments.store') }}" class="bg-white shadow sm:rounded-lg p-6 space-y-6">
+        <form method="POST" action="{{ route('payments.store') }}" class="bg-white shadow-lg rounded-lg p-6 space-y-6">
             @csrf
             <input type="hidden" name="order_id" value="{{ $order->id }}">
 
@@ -82,10 +82,10 @@
             </div>
 
             <div class="flex justify-end space-x-4 mt-6">
-                <a href="{{ route('orders.show', $order->id) }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center">
+                <a href="{{ route('orders.show', $order->id) }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center">
                     <i data-lucide="arrow-left" class="inline-block w-5 h-5 mr-2"></i> Kembali ke Pesanan
                 </a>
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center">
+                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center">
                     <i data-lucide="check-circle" class="inline-block w-5 h-5 mr-2"></i> Simpan Pembayaran
                 </button>
             </div>

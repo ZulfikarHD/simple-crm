@@ -1,16 +1,16 @@
 <x-app-layout>
     <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold mb-6">Detail Item Inventaris</h1>
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-6">Detail Item Inventaris</h1>
 
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4">
+                <h3 class="text-xl font-semibold text-gray-900">
                     Informasi Item
                 </h3>
             </div>
             <div class="border-t border-gray-200">
                 <dl>
-                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <div class="bg-gray-50 px-6 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-medium text-gray-500">
                             Nama Item
                         </dt>
@@ -18,7 +18,7 @@
                             {{ $inventory->item_name }}
                         </dd>
                     </div>
-                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <div class="bg-white px-6 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-medium text-gray-500">
                             Stock
                         </dt>
@@ -26,7 +26,7 @@
                             {{ number_format($inventory->quantity) }}
                         </dd>
                     </div>
-                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <div class="bg-gray-50 px-6 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-medium text-gray-500">
                             Harga Satuan
                         </dt>
@@ -40,10 +40,10 @@
 
         <!-- Tombol Aksi -->
         <div class="mt-6 flex justify-between">
-            <a href="{{ route('inventory.edit', $inventory->id) }}" class="focus:shadow-outline rounded bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700 focus:outline-none">
+            <a href="{{ route('inventory.edit', $inventory->id) }}" class="focus:shadow-outline rounded-lg bg-yellow-600 px-6 py-3 font-bold text-white hover:bg-yellow-700 transition duration-200">
                 Edit Item
             </a>
-            <a href="{{ route('inventory.index') }}" class="focus:shadow-outline rounded bg-gray-500 px-4 py-2 font-bold text-white hover:bg-gray-700 focus:outline-none">
+            <a href="{{ route('inventory.index') }}" class="focus:shadow-outline rounded-lg bg-gray-600 px-6 py-3 font-bold text-white hover:bg-gray-700 transition duration-200">
                 Kembali ke Daftar Inventaris
             </a>
         </div>

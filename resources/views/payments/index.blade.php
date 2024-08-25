@@ -6,10 +6,10 @@
         <div class="flex justify-between items-center mb-4">
             <div class="flex space-x-4">
                 <!-- Search -->
-                <input type="text" placeholder="Cari Pembayaran..." class="border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" wire:model="search">
+                <input type="text" placeholder="Cari Pembayaran..." class="border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" wire:model="search">
 
                 <!-- Filter by Payment Method -->
-                <select class="border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" wire:model="filterMethod">
+                <select class="border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" wire:model="filterMethod">
                     <option value="">Semua Metode</option>
                     <option value="cash">Tunai</option>
                     <option value="credit_card">Kartu Kredit</option>

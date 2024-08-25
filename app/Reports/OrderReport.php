@@ -30,7 +30,7 @@ class OrderReport
         $csvData = "ID,Customer,Service Date,Status,Total Amount\n";
 
         foreach ($orders as $order) {
-            $csvData .= "{$order->id},{$order->customer->name},{$order->service_date},{$order->status},{$order->total_amount}\n";
+            $csvData .= "{$order->id},{$order->customer->name},{$order->order_date},{$order->status},{$order->total_amount}\n";
         }
 
         return $csvData;

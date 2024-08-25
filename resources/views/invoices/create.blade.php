@@ -11,7 +11,7 @@
                     <option value="">Pilih Pesanan</option>
                     @foreach($orders as $order)
                         <option value="{{ $order->id }}" {{ old('order_id') == $order->id ? 'selected' : '' }}>
-                            {{ $order->customer->name }} - {{ \Carbon\Carbon::parse($order->service_date)->format('d M Y') }}
+                            {{ $order->customer->name }} - {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y') }}
                         </option>
                     @endforeach
                 </select>

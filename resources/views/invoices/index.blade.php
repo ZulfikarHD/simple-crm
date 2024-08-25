@@ -1,16 +1,16 @@
 <x-app-layout>
 	<div class="container mx-auto p-6">
-		<h1 class="mb-6 text-3xl font-bold">Daftar Faktur</h1>
+		<h1 class="mb-6 text-4xl font-extrabold text-gray-800">Daftar Faktur</h1>
 
 		<!-- Action Buttons & Filters -->
 		<div class="mb-6 flex items-center justify-between">
 			<a href="{{ route('invoices.create') }}"
-				class="focus:shadow-outline mb-6 inline-block rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-700">Tambah
+				class="focus:shadow-outline mb-6 inline-block rounded-lg bg-green-600 px-6 py-3 font-bold text-white hover:bg-green-700 transition duration-200">Tambah
 				Faktur</a>
-			<div class="flex items-center space-x-2">
+			<div class="flex items-center space-x-4">
 				<input type="text" name="search" placeholder="Cari Pelanggan..."
-					class="rounded-lg border px-4 py-2 focus:ring-2 focus:ring-green-500" id="searchInvoice">
-				<select name="status" class="rounded-lg border px-4 py-2 focus:ring-2 focus:ring-green-500">
+					class="rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent" id="searchInvoice">
+				<select name="status" class="rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent">
 					<option value="">Semua Status</option>
 					<option value="paid">Dibayar</option>
 					<option value="due">Jatuh Tempo</option>
@@ -20,15 +20,15 @@
 		</div>
 
 		@if (session('success'))
-			<div class="mb-4 rounded bg-green-500 px-4 py-2 text-white">
+			<div class="mb-4 rounded-lg bg-green-500 px-4 py-2 text-white">
 				{{ session('success') }}
 			</div>
 		@endif
 
 		<!-- Invoices Table -->
-		<div class="overflow-x-auto rounded-lg bg-white shadow">
+		<div class="overflow-x-auto rounded-lg bg-white shadow-lg">
 			<table class="min-w-full" id="invoiceTable">
-				<thead class="bg-green-500 text-white">
+				<thead class="bg-green-600 text-white">
 					<tr>
 						<th class="cursor-pointer px-4 py-3 text-left" onclick="sortTable(0)">Nama Pelanggan</th>
 						<th class="cursor-pointer px-4 py-3 text-left" onclick="sortTable(1)">Tanggal Penerbitan</th>
@@ -40,24 +40,24 @@
 				</thead>
 				<tbody class="divide-y divide-gray-200">
 					@foreach ($invoices as $invoice)
-						<tr class="hover:bg-gray-100">
+						<tr class="hover:bg-gray-100 transition duration-150">
 							<td class="px-4 py-3">{{ $invoice->order->customer->name }}</td>
 							<td class="px-4 py-3">{{ \Carbon\Carbon::parse($invoice->issue_date)->format('d M Y') }}</td>
 							<td class="px-4 py-3">{{ \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') }}</td>
 							<td class="px-4 py-3">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</td>
 							<td class="px-4 py-3">
 								@if ($invoice->status == 'paid')
-									<span class="rounded bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">Dibayar</span>
+									<span class="rounded bg-green-200 px-2.5 py-0.5 text-xs font-semibold text-green-800">Dibayar</span>
 								@elseif($invoice->status == 'due')
-									<span class="rounded bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-800">Jatuh Tempo</span>
+									<span class="rounded bg-yellow-200 px-2.5 py-0.5 text-xs font-semibold text-yellow-800">Jatuh Tempo</span>
 								@else
-									<span class="rounded bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800">Tertunda</span>
+									<span class="rounded bg-red-200 px-2.5 py-0.5 text-xs font-semibold text-red-800">Tertunda</span>
 								@endif
 							</td>
 							<td class="px-4 py-3 text-center">
 								<div x-data="{ open: false }" class="inline-block text-left">
 									<button @click="open = !open"
-										class="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+										class="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition duration-200">
 										Aksi
 										<svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
 											stroke="currentColor">
@@ -69,13 +69,13 @@
 										class="absolute z-10 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
 										<div class="py-1">
 											<a href="{{ route('invoices.show', $invoice->id) }}"
-												class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Lihat Detail</a>
+												class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-200">Lihat Detail</a>
 											<a href="{{ route('invoices.edit', $invoice->id) }}"
-												class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit</a>
+												class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-200">Edit</a>
 											<form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST" class="inline-block">
 												@csrf
 												@method('DELETE')
-												<button type="button" class="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+												<button type="button" class="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 transition duration-200"
 													onclick="confirmDelete('{{ $invoice->id }}')">Hapus</button>
 											</form>
 										</div>
